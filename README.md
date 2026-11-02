@@ -2,7 +2,7 @@
 
 Amin Square (BD) Ltd. এর জন্য তৈরি HR ও Payroll সফটওয়্যার — একটা মাত্র HTML ফাইল, কোনো সার্ভার লাগে না।
 
-**Version:** 2.4 · **Powered by:** AMAZ ERP SOLUTION
+**Version:** 2.6 · **Powered by:** AMAZ ERP SOLUTION
 
 ## মডিউল
 - কর্মচারী (Employee) — প্রোফাইল, ডকুমেন্ট, Service Book, Appointment/Experience/Salary Certificate, Settlement

@@ -2526,27 +2526,34 @@ function mcardify(sel){
 
 /* ===== v2.3 — Salary & OT Print: "Corporate Navy" ডিজাইন ===== */
 const NV_CSS=`<style>
-.nv{font-family:'Times New Roman',Georgia,serif;color:#14213d}
-.nv .nvTop{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:2.5px solid #1e3a5f;padding-bottom:7px;margin-bottom:8px}
-.nv .nvCo{font-size:20px;font-weight:700;color:#1e3a5f;line-height:1.15}.nv .nvAd{font-size:10.5px;color:#3d4b63;margin-top:2px}
-.nv .nvTt{font-size:13px;font-weight:700;margin-top:5px;letter-spacing:1.4px;text-transform:uppercase}
-.nv table.nvInfo{border-collapse:collapse;font-size:10.5px;flex-shrink:0}.nv table.nvInfo td{border:.8px solid #9fb1c9;padding:2px 8px;white-space:nowrap}
-.nv table.nvInfo td.k{background:#e8eef6;font-weight:700;color:#1e3a5f}
-.nv table.nvT{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5px}
-.nv table.nvT th,.nv table.nvT td{border:.8px solid #a9b8cc;padding:3px 3px;line-height:1.2;overflow:hidden;word-wrap:break-word}
-.nv table.nvT th{font-weight:700;text-align:center;color:#14213d;background:#fff}
+/* v2.5 — প্রিন্টে লেখা ঝকঝকে: কালো লেখা, বড় ফন্ট, গাঢ় দাগ */
+.nv{font-family:'Times New Roman',Georgia,serif;color:#000;-webkit-font-smoothing:antialiased}
+.nv .nvTop{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:2.5px solid #1e3a5f;padding-bottom:7px;margin-bottom:9px}
+.nv .nvCo{font-size:22px;font-weight:700;color:#1e3a5f;line-height:1.15}.nv .nvAd{font-size:11.5px;color:#111;margin-top:2px}
+.nv .nvTt{font-size:14px;font-weight:700;margin-top:5px;letter-spacing:1.2px;text-transform:uppercase;color:#000}
+.nv table.nvInfo{border-collapse:collapse;font-size:12px;flex-shrink:0;color:#000}.nv table.nvInfo td{border:1px solid #5b6b82;padding:3px 9px;white-space:nowrap}
+.nv table.nvInfo td.k{background:#e3ebf5;font-weight:700;color:#000}
+.nv table.nvT{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;color:#000}
+.nv table.nvT th,.nv table.nvT td{border:1px solid #5b6b82;padding:4px 4px;line-height:1.25;overflow:hidden;word-wrap:break-word;color:#000}
+.nv table.nvT th{font-weight:700;text-align:center;background:#fff;font-size:11px;overflow-wrap:normal;word-wrap:normal;word-break:keep-all;hyphens:none}.nv.nvTS table.nvT th{font-size:14px}
 .nv table.nvT th.gE,.nv table.nvT th.gN{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
-.nv table.nvT th.gB{background:#dbe6f3}.nv table.nvT th.gA{background:#e3f0e6}.nv table.nvT th.gD{background:#f6e2df}
+.nv table.nvT th.gB{background:#d6e2f1}.nv table.nvT th.gA{background:#dcebdf}.nv table.nvT th.gD{background:#f3dcd8}
 .nv table.nvT td{text-align:right;white-space:nowrap}.nv table.nvT td.l{text-align:left;white-space:normal}.nv table.nvT td.c{text-align:center}
-.nv table.nvT td.net{font-weight:700;background:#eef3fa}
+.nv table.nvT td.net{font-weight:700;background:#e9f0f8}
 .nv table.nvT tr.tot td{font-weight:700;background:#1e3a5f;color:#fff;border-color:#1e3a5f}
-.nv .nvSum{display:grid;gap:8px;margin-top:8px;page-break-inside:avoid}
-.nv .nvSum>div{border:.8px solid #a9b8cc;padding:4px 9px}.nv .nvSum span{display:block;font-size:10px;color:#3d4b63}.nv .nvSum b{font-size:14px}
-.nv .nvSum .nt{background:#1e3a5f;color:#fff;border-color:#1e3a5f}.nv .nvSum .nt span{color:#d6e1ef}.nv .nvSum .wd{font-size:10.5px;line-height:1.3}
-.nv .xsign>div .ln{border-top-color:#14213d}.nv .xsign>div .nm{color:#3d4b63}
-.psheet.dense .nv table.nvT th,.psheet.dense .nv table.nvT td{font-size:9.6px;padding:2px 3px}
-.psheet.xdense .nv table.nvT th,.psheet.xdense .nv table.nvT td{font-size:8.6px;padding:1.2px 2px;line-height:1.05}
-.psheet.xdense .nv .nvCo{font-size:17px}
+.nv .nvSum{display:grid;gap:8px;margin-top:9px;page-break-inside:avoid}
+.nv .nvSum>div{border:1px solid #5b6b82;padding:5px 10px}.nv .nvSum span{display:block;font-size:11px;color:#111}.nv .nvSum b{font-size:15px;color:#000}
+.nv .nvSum .nt{background:#1e3a5f;color:#fff;border-color:#1e3a5f}.nv .nvSum .nt span,.nv .nvSum .nt b{color:#fff}.nv .nvSum .wd{font-size:12px;line-height:1.35;color:#000}
+.nv .xsign>div .ln{border-top:1.2px solid #000}.nv .xsign>div .rl{font-size:12px;color:#000}.nv .xsign>div .nm{font-size:11px;color:#111}
+/* Top Sheet — বড় ও পরিষ্কার */
+.nv.nvTS .nvCo{font-size:26px}.nv.nvTS .nvAd{font-size:13px}.nv.nvTS .nvTt{font-size:16px}
+.nv.nvTS table.nvInfo{font-size:13.5px}.nv.nvTS table.nvInfo td{padding:4px 11px}
+.nv.nvTS table.nvT{font-size:15px;margin-top:6px}.nv.nvTS table.nvT th,.nv.nvTS table.nvT td{padding:10px 8px;line-height:1.3}
+.nv.nvTS .nvSum{margin-top:14px;gap:12px}.nv.nvTS .nvSum>div{padding:9px 14px}.nv.nvTS .nvSum span{font-size:13px}.nv.nvTS .nvSum b{font-size:20px}.nv.nvTS .nvSum .wd{font-size:14px}
+.nv.nvTS .xsign>div .rl{font-size:13.5px}.nv.nvTS .xsign>div .nm{font-size:12.5px}
+.psheet.dense .nv table.nvT th,.psheet.dense .nv table.nvT td{font-size:11px;padding:3px 3px}
+.psheet.xdense .nv table.nvT th,.psheet.xdense .nv table.nvT td{font-size:10px;padding:1.5px 2px;line-height:1.1}
+.psheet.xdense .nv .nvCo{font-size:18px}
 .psheet.xls>.nv{display:flex;flex-direction:column;flex:1 1 auto;padding-bottom:7mm}.nv .xsign{margin-top:auto;padding-top:26px}
 @media print{.nv *{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body,#printArea{background:#fff!important}}
 </style>`;
@@ -2558,6 +2565,16 @@ function nvHead(title,info){
 }
 function nvSum(boxes,words){
   return `<div class="nvSum" style="grid-template-columns:repeat(${boxes.length},1fr) 2.2fr">${boxes.map(b=>`<div class="${b[2]||''}"><span>${b[0]}</span><b>${b[1]}</b></div>`).join('')}<div class="wd"><span>In Words</span>${words}</div></div>`;
+}
+// v2.6 — সারাংশ বাক্স: Absent Salary, Arrears, Holiday, Deductions আলাদা — যেটার টাকা আছে শুধু সেটাই দেখায়
+function salBoxes(g,abs,arr,hol,ded,net,tk){
+  const b=[['Gross Salary',tk(g)]];
+  if(Math.round(abs))b.push(['Absent Salary',tk(abs)]);
+  if(Math.round(arr))b.push(['Arrears',tk(arr)]);
+  if(Math.round(hol))b.push(['Holiday Allowance',tk(hol)]);
+  if(Math.round(ded))b.push(['Deductions',tk(ded)]);
+  b.push(['Net Payable',tk(net),'nt']);
+  return b;
 }
 function nvStatus(k,kind){const l=monthLock(k);return l?'Approved · Locked':'Open (Not Locked)';}
 function printSalary(){
@@ -2574,12 +2591,12 @@ function printSalary(){
     m[c].forEach(e=>{const r=salCalc(e,sh.rows[e.id],md,salMonth);T.n++;T.g+=r.gross;T.abs+=r.absentSal;T.pay+=r.payable;T.arr+=r.arrears;T.hol+=r.holiday;T.dep+=r.deposit;T.adv+=r.advance;T.tds+=r.tds;T.net+=r.net;});
     Object.keys(G).forEach(k=>G[k]+=T[k]);
     sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td>${pIntD(T.g)}</td><td>${pIntD(T.abs)}</td><td>${pIntD(T.pay)}</td><td>${pIntD(T.arr)}</td><td>${pIntD(T.hol)}</td><td>${pIntD(T.dep)}</td><td>${pIntD(T.adv)}</td><td>${pIntD(T.tds)}</td><td class="net">${pIntD(T.net)}</td></tr>`;});
-  let html=NV_CSS+`<div class="psheet xls"><div class="nv">${nvHead('Monthly Salary Sheet — Top Sheet',[['Salary Month',mon],['Month Days',md],['Employees',G.n],['Categories',cats.length],['Status',st],['Sheet','1 of '+sheets]])}
+  let html=NV_CSS+`<div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Salary Sheet — Top Sheet',[['Salary Month',mon],['Month Days',md],['Employees',G.n],['Categories',cats.length],['Status',st],['Sheet','1 of '+sheets]])}
     <table class="nvT"><colgroup><col style="width:4%"><col style="width:18%"><col style="width:7%"><col style="width:8.5%"><col style="width:8%"><col style="width:8.5%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7.5%"><col style="width:6.5%"><col style="width:11%"></colgroup>
     <thead><tr><th class="gE" colspan="3">Particulars</th><th class="gB" colspan="3">Salary</th><th class="gA" colspan="2">Additions</th><th class="gD" colspan="3">Deductions</th><th class="gN" rowspan="2">Net Payable</th></tr>
     <tr><th>SL</th><th>Category</th><th>Employees</th><th class="gB">Gross Salary</th><th class="gB">Absent Deduction</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th></tr></thead>
     <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${pIntD(G.g)}</td><td>${pIntD(G.abs)}</td><td>${pIntD(G.pay)}</td><td>${pIntD(G.arr)}</td><td>${pIntD(G.hol)}</td><td>${pIntD(G.dep)}</td><td>${pIntD(G.adv)}</td><td>${pIntD(G.tds)}</td><td>${pIntD(G.net)}</td></tr></tbody></table>
-    ${nvSum([['Gross Salary',tk(G.g)],['Additions',tk(G.arr+G.hol)],['Deductions',tk(G.abs+G.dep+G.adv+G.tds)],['Net Payable',tk(G.net),'nt']],inWords(Math.round(G.net)))}
+    ${nvSum(salBoxes(G.g,G.abs,G.arr,G.hol,G.dep+G.adv+G.tds,G.net,tk),inWords(Math.round(G.net)))}
     ${xSign()}</div></div>`;
   /* ---------- DATA SHEET per category ---------- */
   cats.forEach((c,ci)=>{
@@ -2593,11 +2610,11 @@ function printSalary(){
         <td>${d(r.arrears)}</td><td>${d(r.holiday)}</td><td>${pIntD(pay2)}</td>
         <td>${d(r.deposit)}</td><td>${d(r.advance)}</td><td>${d(r.tds)}</td><td>${d(r.deposit+r.advance+r.tds)}</td><td class="net">${pIntD(r.net)}</td><td></td></tr>`;});
     html+=`<div class="psheet xls${densClass(list.length)}"><div class="nv">${nvHead('Monthly Salary Sheet',[['Salary Month',mon],['Category',esc(c)],['Month Days',md],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets]])}
-      <table class="nvT"><colgroup><col style="width:2.3%"><col style="width:10.5%"><col style="width:8%"><col style="width:5%"><col style="width:4.6%"><col style="width:3.4%"><col style="width:4.2%"><col style="width:4%"><col style="width:3.4%"><col style="width:3.4%"><col style="width:3%"><col style="width:2.8%"><col style="width:3.8%"><col style="width:4.4%"><col style="width:3.6%"><col style="width:3.6%"><col style="width:4.6%"><col style="width:3.6%"><col style="width:3.6%"><col style="width:3%"><col style="width:3.8%"><col style="width:5%"><col style="width:6.2%"></colgroup>
+      <table class="nvT"><colgroup><col style="width:2.3%"><col style="width:9.5%"><col style="width:7.5%"><col style="width:4.8%"><col style="width:4.6%"><col style="width:3.8%"><col style="width:4.2%"><col style="width:4%"><col style="width:3.4%"><col style="width:3.6%"><col style="width:3.4%"><col style="width:2.8%"><col style="width:4.1%"><col style="width:4.4%"><col style="width:4%"><col style="width:3.9%"><col style="width:4.6%"><col style="width:3.9%"><col style="width:4%"><col style="width:3%"><col style="width:3.8%"><col style="width:5%"><col style="width:5.4%"></colgroup>
       <thead><tr><th class="gE" colspan="6">Employee</th><th class="gB" colspan="5">Salary Breakdown</th><th class="gB" colspan="3">Absence</th><th class="gA" colspan="3">Additions</th><th class="gD" colspan="4">Deductions</th><th class="gN" rowspan="2">Net Payable</th><th class="gE" rowspan="2">Signature</th></tr>
       <tr><th>SL</th><th>Name</th><th>Designation</th><th>Joined</th><th>Gross</th><th>Present</th><th class="gB">Basic</th><th class="gB">House Rent</th><th class="gB">Conv.</th><th class="gB">Medical</th><th class="gB">Others</th><th class="gB">Days</th><th class="gB">Amount</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gA">Total</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th><th class="gD">Total</th></tr></thead>
       <tbody>${rows}<tr class="tot"><td></td><td class="l" colspan="3">Total (${sl} Employees)</td><td>${pIntD(T.g)}</td><td></td><td>${pIntD(T.b)}</td><td>${pIntD(T.r)}</td><td>${pIntD(T.cv)}</td><td>${pIntD(T.md)}</td><td>${pIntD(T.o)}</td><td></td><td>${pIntD(T.abs)}</td><td>${pIntD(T.pay)}</td><td>${pIntD(T.arr)}</td><td>${pIntD(T.hol)}</td><td>${pIntD(T.pay2)}</td><td>${pIntD(T.dep)}</td><td>${pIntD(T.adv)}</td><td>${pIntD(T.tds)}</td><td>${pIntD(T.dep+T.adv+T.tds)}</td><td>${pIntD(T.net)}</td><td></td></tr></tbody></table>
-      ${nvSum([['Gross Salary',tk(T.g)],['Additions',tk(T.arr+T.hol)],['Deductions',tk(T.abs+T.dep+T.adv+T.tds)],['Net Payable',tk(T.net),'nt']],inWords(Math.round(T.net)))}
+      ${nvSum(salBoxes(T.g,T.abs,T.arr,T.hol,T.dep+T.adv+T.tds,T.net,tk),inWords(Math.round(T.net)))}
       ${xSign()}</div></div>`;
   });
   doPrint(html,'landscape');
@@ -2614,7 +2631,7 @@ function printOT(){
     m[c].filter(hasOT).forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);T.n++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;});
     Object.keys(G).forEach(k=>G[k]+=T[k]);
     sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td>${p2(T.h)}</td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
-  let html=NV_CSS+`<div class="psheet xls"><div class="nv">${nvHead('Monthly Overtime Sheet — Top Sheet',[['OT Month',mon],['Month Days',daysInMonth(otMonth)],['Employees',G.n],['OT Rate',otInfo],['Status',st],['Sheet','1 of '+sheets]])}
+  let html=NV_CSS+`<div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Overtime Sheet — Top Sheet',[['OT Month',mon],['Month Days',daysInMonth(otMonth)],['Employees',G.n],['OT Rate',otInfo],['Status',st],['Sheet','1 of '+sheets]])}
     <table class="nvT"><colgroup><col style="width:5%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:14%"><col style="width:12%"></colgroup>
     <thead><tr><th class="gE">SL</th><th class="gE">Category</th><th class="gE">Employees</th><th class="gB">OT Hours</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Remarks</th></tr></thead>
     <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${p2(G.h)}</td><td>${p2D(G.net)}</td><td>${p2D(G.arr)}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
@@ -2847,6 +2864,15 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'2.6',d:'02 Nov 2026',t:'Salary Print এর সারাংশ বাক্স আলাদা আলাদা',items:[
+    'Salary Sheet ও Top Sheet এর নিচের বাক্সে Absent Salary আর Deductions এখন আলাদা — Deductions এ শুধু Deposit + Advance + TDS',
+    'Additions এর বদলে Arrears ও Holiday Allowance আলাদা বাক্সে; যে ঘরে টাকা আছে শুধু সেই বাক্সই দেখায়'
+  ]},
+  {v:'2.5',d:'02 Nov 2026',t:'Salary/OT Print আরও ঝকঝকে, Top Sheet বড়',items:[
+    'Salary ও OT Sheet এর লেখা এখন পুরো কালো, ফন্ট বড় (১২px), দাগ গাঢ় — প্রিন্টে আর ঝাপসা দেখায় না',
+    'Top Sheet বড় ও পরিষ্কার: বড় শিরোনাম, বড় ফন্ট (১৫px), সারিতে বেশি জায়গা, বড় সারাংশ বাক্স ও স্বাক্ষর',
+    'PDF Download এর মান বাড়ানো (৩ গুণ রেজোলিউশন) — PDF থেকে প্রিন্ট করলেও লেখা ধারালো'
+  ]},
   {v:'2.4',d:'01 Nov 2026',t:'PDF Download, Manager Sign ঠিক, Legal কাগজ',items:[
     'সব Print এর বাক্সে নতুন "⤓ PDF Download" — Salary, OT, রিপোর্ট, চিঠি সব কিছু সরাসরি PDF ফাইল হিসেবে নামে; Portrait/Landscape ও কাগজ (Legal/A4/Letter) বেছে নেওয়া যায়, প্রতি পাতায় Page নম্বর',
     'ঠিক করা: Signature Row এ "Manager" লেখা সারি (যেমন Manager-ASM) Approval Flow এর Manager-Sign সুইচ বন্ধ থাকলেও Print এ আসত — এখন সুইচ মেনে চলে (Assistant/Sub Manager এর সারি সবসময় থাকে)',
@@ -8790,8 +8816,8 @@ async function _pdPdf(){
     const lib=await new Promise((res,rej)=>{const w=ifr.contentWindow;if(w.html2pdf)return res(w.html2pdf);const sc=d.createElement('script');sc.src=PDF_LIB;sc.onload=()=>res(w.html2pdf);sc.onerror=()=>rej(new Error('lib'));d.head.appendChild(sc);});
     const by=(CU&&CU.name)||'System', stamp=new Date().toLocaleString('en-GB'), pageNo=!(S.settings&&S.settings.printPageNo===false);
     // অপশনগুলো iframe এর নিজের JS জগতে বানাতে হয় (নাহলে html2pdf Array চিনতে পারে না)
-    const opts=ifr.contentWindow.JSON.parse(JSON.stringify({margin:mar,filename:fname,image:{type:'jpeg',quality:0.96},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',windowWidth:wpx,scrollX:0,scrollY:0},
+    const opts=ifr.contentWindow.JSON.parse(JSON.stringify({margin:mar,filename:fname,image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:3,useCORS:true,backgroundColor:'#ffffff',windowWidth:wpx,scrollX:0,scrollY:0},
       jsPDF:{unit:'mm',format:pk,orientation:or},
       pagebreak:{mode:['css','legacy'],avoid:full?['.sign-area','.ack-box']:['tr','.xsign','.nvSum','.sign-area','.ack-box']}}));
     await lib().set(opts)
