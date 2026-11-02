@@ -2864,6 +2864,9 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'2.6.1',d:'02 Nov 2026',t:'Print বাক্সে প্রিন্টারের কাগজ মেলানোর নির্দেশনা',items:[
+    'Print বাক্সে মনে করিয়ে দেয়: প্রিন্টারে দিলে Print উইন্ডোর More settings → Paper size ও Scale ঠিক করতে হবে'
+  ]},
   {v:'2.6',d:'02 Nov 2026',t:'Salary Print এর সারাংশ বাক্স আলাদা আলাদা',items:[
     'Salary Sheet ও Top Sheet এর নিচের বাক্সে Absent Salary আর Deductions এখন আলাদা — Deductions এ শুধু Deposit + Advance + TDS',
     'Additions এর বদলে Arrears ও Holiday Allowance আলাদা বাক্সে; যে ঘরে টাকা আছে শুধু সেই বাক্সই দেখায়'
@@ -8749,7 +8752,7 @@ function doPrint(html,orientation,skipFooter){
       <div class="pdRow">${card('portrait','Portrait',46,62)}${card('landscape','Landscape',62,46)}</div>
       <label class="lbl" style="margin-top:14px">কাগজ</label>
       <select class="inp" id="pd_paper">${prPaperOpts(paper)}</select>
-      <div class="faint" style="font-size:11.5px;margin-top:6px">যে কাগজ বাছবেন Print উইন্ডোতে সেটাই সেট হয়ে যাবে — প্রিন্টারে ঐ কাগজ দিন।</div>
+      <div class="note" style="font-size:12px;margin-top:8px;padding:8px 10px;line-height:1.55">⚠ <b>প্রিন্টারে (Canon ইত্যাদি) দিলে:</b> Print উইন্ডোতে <b>More settings</b> খুলে <b>Paper size</b> = এখানে বাছা কাগজ (যেমন <b>Legal</b>) আর <b>Scale = Default</b> দিন। না দিলে প্রিন্টার নিজের A4 কাগজে ছোট করে ছাপে — লেখা ঝাপসা দেখায় ও পাশে জায়গা খালি থাকে। Chrome একবার বাছলে মনে রাখে।</div>
       <label style="display:flex;gap:8px;align-items:center;font-size:12.5px;margin-top:14px;cursor:pointer"><input type="checkbox" id="pd_noask"> এরপর আর জিজ্ঞেস করবে না (Settings → Print থেকে আবার চালু করা যাবে)</label>
     </div>
     <div class="modal-f"><button class="btn ghost" onclick="closeM2()">বাতিল</button><button class="btn" id="pd_pdf" onclick="_pdPdf()">⤓ PDF Download</button><button class="btn gold" id="pd_go" onclick="_pdGo()">🖨 Print করুন</button></div></div>`;
