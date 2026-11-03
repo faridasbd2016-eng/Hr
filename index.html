@@ -2534,27 +2534,32 @@ const NV_CSS=`<style>
 .nv table.nvInfo{border-collapse:collapse;font-size:12px;flex-shrink:0;color:#000}.nv table.nvInfo td{border:1px solid #5b6b82;padding:3px 9px;white-space:nowrap}
 .nv table.nvInfo td.k{background:#e3ebf5;font-weight:700;color:#000}
 .nv table.nvT{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;color:#000}
-.nv table.nvT th,.nv table.nvT td{border:1px solid #5b6b82;padding:4px 4px;line-height:1.25;overflow:hidden;word-wrap:break-word;color:#000}
+.nv table.nvT th,.nv table.nvT td{border:1px solid #5b6b82;padding:3px 4px;line-height:1.2;overflow:hidden;word-wrap:break-word;color:#000}
 .nv table.nvT th{font-weight:700;text-align:center;background:#fff;font-size:11px;overflow-wrap:normal;word-wrap:normal;word-break:keep-all;hyphens:none}.nv.nvTS table.nvT th{font-size:14px}
 .nv table.nvT th.gE,.nv table.nvT th.gN{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
 .nv table.nvT th.gB{background:#d6e2f1}.nv table.nvT th.gA{background:#dcebdf}.nv table.nvT th.gD{background:#f3dcd8}
-.nv table.nvT td{text-align:right;white-space:nowrap}.nv table.nvT td.l{text-align:left;white-space:normal}.nv table.nvT td.c{text-align:center}
+.nv table.nvT td{text-align:right;white-space:nowrap}.nv table.nvT td.l{text-align:left;white-space:nowrap;text-overflow:ellipsis}.nv table.nvT td.c{text-align:center}
 .nv table.nvT td.net{font-weight:700;background:#e9f0f8}
 .nv table.nvT tr.tot td{font-weight:700;background:#1e3a5f;color:#fff;border-color:#1e3a5f}
-.nv .nvSum{display:grid;gap:8px;margin-top:9px;page-break-inside:avoid}
-.nv .nvSum>div{border:1px solid #5b6b82;padding:5px 10px}.nv .nvSum span{display:block;font-size:11px;color:#111}.nv .nvSum b{font-size:15px;color:#000}
+/* প্রতি পাতার নিচে Footer এর জন্য ফাঁকা জায়গা (tfoot প্রতি পাতায় বসে) — সারি আর Footer এর নিচে চাপা পড়ে না */
+.nv table.nvT tfoot td.nvSp{height:9mm;padding:0;border:none!important;background:#fff!important}
+/* টেবিলের শেষের ফাঁকা অংশের উপরেই সারাংশ — টেবিলের ঠিক নিচে লেগে থাকে */
+.nv .nvCont{text-align:right;font-size:11px;font-style:italic;color:#222;margin-top:4px}
+.nv .nvSum{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;page-break-inside:avoid}
+.nv .nvSum>div{border:1px solid #5b6b82;padding:3px 9px;white-space:nowrap;display:flex;align-items:baseline;gap:6px}.nv .nvSum>div.wd{flex:1 1 280px;white-space:normal}.nv .nvSum>div.wd>span{white-space:nowrap}
+.nv .nvSum span{font-size:11px;color:#111}.nv .nvSum span:after{content:':'}.nv .nvSum b{font-size:13px;color:#000}
 .nv .nvSum .nt{background:#1e3a5f;color:#fff;border-color:#1e3a5f}.nv .nvSum .nt span,.nv .nvSum .nt b{color:#fff}.nv .nvSum .wd{font-size:12px;line-height:1.35;color:#000}
 .nv .xsign>div .ln{border-top:1.2px solid #000}.nv .xsign>div .rl{font-size:12px;color:#000}.nv .xsign>div .nm{font-size:11px;color:#111}
 /* Top Sheet — বড় ও পরিষ্কার */
 .nv.nvTS .nvCo{font-size:26px}.nv.nvTS .nvAd{font-size:13px}.nv.nvTS .nvTt{font-size:16px}
 .nv.nvTS table.nvInfo{font-size:13.5px}.nv.nvTS table.nvInfo td{padding:4px 11px}
 .nv.nvTS table.nvT{font-size:15px;margin-top:6px}.nv.nvTS table.nvT th,.nv.nvTS table.nvT td{padding:10px 8px;line-height:1.3}
-.nv.nvTS .nvSum{margin-top:14px;gap:12px}.nv.nvTS .nvSum>div{padding:9px 14px}.nv.nvTS .nvSum span{font-size:13px}.nv.nvTS .nvSum b{font-size:20px}.nv.nvTS .nvSum .wd{font-size:14px}
+.nv.nvTS .nvSum{margin-top:12px;gap:10px}.nv.nvTS .nvSum>div{padding:7px 12px}.nv.nvTS .nvSum span{font-size:13px}.nv.nvTS .nvSum b{font-size:17px}.nv.nvTS .nvSum .wd{font-size:14px}
 .nv.nvTS .xsign>div .rl{font-size:13.5px}.nv.nvTS .xsign>div .nm{font-size:12.5px}
 .psheet.dense .nv table.nvT th,.psheet.dense .nv table.nvT td{font-size:11px;padding:3px 3px}
 .psheet.xdense .nv table.nvT th,.psheet.xdense .nv table.nvT td{font-size:10px;padding:1.5px 2px;line-height:1.1}
 .psheet.xdense .nv .nvCo{font-size:18px}
-.psheet.xls>.nv{display:flex;flex-direction:column;flex:1 1 auto;padding-bottom:7mm}.nv .xsign{margin-top:auto;padding-top:26px}
+.psheet.xls>.nv{display:flex;flex-direction:column;flex:1 1 auto;padding-bottom:7mm}.psheet .nv .xsign{margin-top:auto!important;padding-top:56px!important;min-height:28mm;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid}.psheet .nv.nvTS .xsign{padding-top:64px!important}
 @media print{.nv *{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body,#printArea{background:#fff!important}}
 </style>`;
 function nvHead(title,info){
@@ -2564,7 +2569,7 @@ function nvHead(title,info){
     <table class="nvInfo"><tbody>${cells.join('')}</tbody></table></div>`;
 }
 function nvSum(boxes,words){
-  return `<div class="nvSum" style="grid-template-columns:repeat(${boxes.length},1fr) 2.2fr">${boxes.map(b=>`<div class="${b[2]||''}"><span>${b[0]}</span><b>${b[1]}</b></div>`).join('')}<div class="wd"><span>In Words</span>${words}</div></div>`;
+  return `<div class="nvSum">${boxes.map(b=>`<div class="${b[2]||''}"><span>${b[0]}</span><b>${b[1]}</b></div>`).join('')}<div class="wd"><span>In Words</span><b style="font-weight:400;font-size:inherit">${words}</b></div></div>`;
 }
 // v2.6 — সারাংশ বাক্স: Absent Salary, Arrears, Holiday, Deductions আলাদা — যেটার টাকা আছে শুধু সেটাই দেখায়
 function salBoxes(g,abs,arr,hol,ded,net,tk){
@@ -2575,6 +2580,50 @@ function salBoxes(g,abs,arr,hol,ded,net,tk){
   if(Math.round(ded))b.push(['Deductions',tk(ded)]);
   b.push(['Net Payable',tk(net),'nt']);
   return b;
+}
+
+/* v2.6.5 — নিজের হাতে পাতা ভাগ: প্রতিটা সারি মেপে পাতায় সাজাই, যাতে স্বাক্ষর সবসময় শেষ পাতার একদম নিচে থাকে */
+function _prMhPx(or){
+  const paper=prPaper(or);
+  const HMAP={landscape:{legal:18.7,letter:18.7,a4:18.1,auto:18.3},portrait:{legal:32,letter:23.5,a4:25,auto:23.5}};
+  return ((HMAP[or]||HMAP.landscape)[paper]||18.3)*37.795;
+}
+function _prWidthPx(or){
+  const pk=prPaper(or)==='auto'?'a4':prPaper(or);const mm={legal:[215.9,355.6],a4:[210,297],letter:[215.9,279.4]}[pk]||[210,297];
+  return Math.round(((or==='landscape'?mm[1]:mm[0])-14)*96/25.4);
+}
+function nvPages(o){ // o: {dens, top(pi,pn), tbl (colgroup+thead), rows:[], tot, after, or}
+  const or=o.or||'landscape', mh=_prMhPx(or), W=_prWidthPx(or);
+  const box=document.createElement('div');
+  box.style.cssText='position:absolute;left:-30000px;top:0;width:'+W+'px;visibility:hidden;background:#fff';
+  box.innerHTML=NV_CSS+'<div class="psheet xls'+(o.dens||'')+'"><div class="nv">'+o.top(1,1)+'<table class="nvT">'+o.tbl+'<tbody>'+o.rows.join('')+o.tot+'</tbody></table>'+o.after+'</div></div>';
+  document.body.appendChild(box);
+  let topH=120,headH=40,rowH=[],totH=24,afterH=40;
+  try{
+    const nv=box.querySelector('.nv'),tb=box.querySelector('table.nvT'),th=tb.querySelector('thead'),trs=[...tb.querySelectorAll('tbody tr')];
+    topH=tb.getBoundingClientRect().top-nv.getBoundingClientRect().top;
+    headH=th.getBoundingClientRect().height;
+    rowH=trs.slice(0,o.rows.length).map(r=>r.getBoundingClientRect().height);
+    totH=trs.length?trs[trs.length-1].getBoundingClientRect().height:24;
+    const sm=box.querySelector('.nvSum');afterH=sm?sm.getBoundingClientRect().height+8:0;
+  }catch(e){}
+  box.remove();
+  const signH=34*3.78, safety=6*3.78, cap=mh-topH-headH-safety, lastExtra=totH+afterH+signH;
+  const chunks=[];let i=0;
+  while(i<o.rows.length){
+    let h=0,j=i; while(j<o.rows.length&&h+(rowH[j]||22)<=cap){h+=rowH[j]||22;j++;}
+    if(j===o.rows.length){ // বাকি সব এই পাতায় ধরে — স্বাক্ষরের জায়গা আছে কি?
+      if(h+lastExtra<=cap){chunks.push([i,j]);i=j;break;}
+      let k=j,hh=h;while(k>i+1&&hh+lastExtra>cap){k--;hh-=rowH[k]||22;}
+      if(k===j)k=j-1; chunks.push([i,Math.max(i+1,k)]);i=Math.max(i+1,k);continue;
+    }
+    if(j===i)j=i+1; chunks.push([i,j]);i=j;
+  }
+  if(!chunks.length)chunks.push([0,0]);
+  const pn=chunks.length;
+  return chunks.map(([a,b],x)=>{const last=x===pn-1;
+    return '<div class="psheet xls'+(o.dens||'')+'"><div class="nv">'+o.top(x+1,pn)+'<table class="nvT">'+o.tbl+'<tbody>'+o.rows.slice(a,b).join('')+(last?o.tot:'')+'</tbody></table>'+
+      (last?o.after+xSign():'<div class="nvCont">Continued on next page →</div>')+'</div></div>';}).join('');
 }
 function nvStatus(k,kind){const l=monthLock(k);return l?'Approved · Locked':'Open (Not Locked)';}
 function printSalary(){
@@ -2594,28 +2643,24 @@ function printSalary(){
   let html=NV_CSS+`<div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Salary Sheet — Top Sheet',[['Salary Month',mon],['Month Days',md],['Employees',G.n],['Categories',cats.length],['Status',st],['Sheet','1 of '+sheets]])}
     <table class="nvT"><colgroup><col style="width:4%"><col style="width:18%"><col style="width:7%"><col style="width:8.5%"><col style="width:8%"><col style="width:8.5%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7.5%"><col style="width:6.5%"><col style="width:11%"></colgroup>
     <thead><tr><th class="gE" colspan="3">Particulars</th><th class="gB" colspan="3">Salary</th><th class="gA" colspan="2">Additions</th><th class="gD" colspan="3">Deductions</th><th class="gN" rowspan="2">Net Payable</th></tr>
-    <tr><th>SL</th><th>Category</th><th>Employees</th><th class="gB">Gross Salary</th><th class="gB">Absent Deduction</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th></tr></thead>
+    <tr><th>SL</th><th>Category</th><th>Employees</th><th class="gB">Gross Salary</th><th class="gB">Absent Deduction</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
     <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${pIntD(G.g)}</td><td>${pIntD(G.abs)}</td><td>${pIntD(G.pay)}</td><td>${pIntD(G.arr)}</td><td>${pIntD(G.hol)}</td><td>${pIntD(G.dep)}</td><td>${pIntD(G.adv)}</td><td>${pIntD(G.tds)}</td><td>${pIntD(G.net)}</td></tr></tbody></table>
     ${nvSum(salBoxes(G.g,G.abs,G.arr,G.hol,G.dep+G.adv+G.tds,G.net,tk),inWords(Math.round(G.net)))}
     ${xSign()}</div></div>`;
   /* ---------- DATA SHEET per category ---------- */
   cats.forEach((c,ci)=>{
-    const list=m[c];let rows='',sl=0;const T={g:0,b:0,r:0,cv:0,md:0,o:0,abs:0,pay:0,arr:0,hol:0,pay2:0,dep:0,adv:0,tds:0,net:0};
+    const list=m[c];const rows=[];let sl=0;const T={g:0,b:0,r:0,cv:0,md:0,o:0,abs:0,pay:0,arr:0,hol:0,pay2:0,dep:0,adv:0,tds:0,net:0};
     list.forEach(e=>{sl++;const r=salCalc(e,sh.rows[e.id],md,salMonth);const oth=num(e.others);const pay2=r.payable+r.arrears+r.holiday;
       T.g+=r.gross;T.b+=r.basic;T.r+=r.rent;T.cv+=r.conv;T.md+=r.med;T.o+=oth;T.abs+=r.absentSal;T.pay+=r.payable;T.arr+=r.arrears;T.hol+=r.holiday;T.pay2+=pay2;T.dep+=r.deposit;T.adv+=r.advance;T.tds+=r.tds;T.net+=r.net;
       const d=v=>num(v)?pIntD(v):'-';
-      rows+=`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${pIntD(r.gross)}</td><td class="c">${r.attend===''||r.attend==null?'-':r.attend}</td>
+      rows.push(`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${pIntD(r.gross)}</td><td class="c">${r.attend===''||r.attend==null?'-':r.attend}</td>
         <td>${pIntD(r.basic)}</td><td>${pIntD(r.rent)}</td><td>${pIntD(r.conv)}</td><td>${pIntD(r.med)}</td><td>${d(oth)}</td>
         <td class="c">${r.absentDays||'-'}</td><td>${d(r.absentSal)}</td><td>${pIntD(r.payable)}</td>
         <td>${d(r.arrears)}</td><td>${d(r.holiday)}</td><td>${pIntD(pay2)}</td>
-        <td>${d(r.deposit)}</td><td>${d(r.advance)}</td><td>${d(r.tds)}</td><td>${d(r.deposit+r.advance+r.tds)}</td><td class="net">${pIntD(r.net)}</td><td></td></tr>`;});
-    html+=`<div class="psheet xls${densClass(list.length)}"><div class="nv">${nvHead('Monthly Salary Sheet',[['Salary Month',mon],['Category',esc(c)],['Month Days',md],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets]])}
-      <table class="nvT"><colgroup><col style="width:2.3%"><col style="width:9.5%"><col style="width:7.5%"><col style="width:4.8%"><col style="width:4.6%"><col style="width:3.8%"><col style="width:4.2%"><col style="width:4%"><col style="width:3.4%"><col style="width:3.6%"><col style="width:3.4%"><col style="width:2.8%"><col style="width:4.1%"><col style="width:4.4%"><col style="width:4%"><col style="width:3.9%"><col style="width:4.6%"><col style="width:3.9%"><col style="width:4%"><col style="width:3%"><col style="width:3.8%"><col style="width:5%"><col style="width:5.4%"></colgroup>
+        <td>${d(r.deposit)}</td><td>${d(r.advance)}</td><td>${d(r.tds)}</td><td>${d(r.deposit+r.advance+r.tds)}</td><td class="net">${pIntD(r.net)}</td><td></td></tr>`);});
+    html+=nvPages({dens:densClass(list.length),top:(pi,pn)=>nvHead('Monthly Salary Sheet',[['Salary Month',mon],['Category',esc(c)],['Month Days',md],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl:`<colgroup><col style="width:2.3%"><col style="width:10.5%"><col style="width:9%"><col style="width:4.6%"><col style="width:4.4%"><col style="width:3.6%"><col style="width:4%"><col style="width:4%"><col style="width:3.3%"><col style="width:3.4%"><col style="width:3%"><col style="width:2.8%"><col style="width:4.1%"><col style="width:4.2%"><col style="width:4%"><col style="width:3.9%"><col style="width:4.4%"><col style="width:3.9%"><col style="width:4%"><col style="width:3%"><col style="width:3.8%"><col style="width:4.8%"><col style="width:5%"></colgroup>
       <thead><tr><th class="gE" colspan="6">Employee</th><th class="gB" colspan="5">Salary Breakdown</th><th class="gB" colspan="3">Absence</th><th class="gA" colspan="3">Additions</th><th class="gD" colspan="4">Deductions</th><th class="gN" rowspan="2">Net Payable</th><th class="gE" rowspan="2">Signature</th></tr>
-      <tr><th>SL</th><th>Name</th><th>Designation</th><th>Joined</th><th>Gross</th><th>Present</th><th class="gB">Basic</th><th class="gB">House Rent</th><th class="gB">Conv.</th><th class="gB">Medical</th><th class="gB">Others</th><th class="gB">Days</th><th class="gB">Amount</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gA">Total</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th><th class="gD">Total</th></tr></thead>
-      <tbody>${rows}<tr class="tot"><td></td><td class="l" colspan="3">Total (${sl} Employees)</td><td>${pIntD(T.g)}</td><td></td><td>${pIntD(T.b)}</td><td>${pIntD(T.r)}</td><td>${pIntD(T.cv)}</td><td>${pIntD(T.md)}</td><td>${pIntD(T.o)}</td><td></td><td>${pIntD(T.abs)}</td><td>${pIntD(T.pay)}</td><td>${pIntD(T.arr)}</td><td>${pIntD(T.hol)}</td><td>${pIntD(T.pay2)}</td><td>${pIntD(T.dep)}</td><td>${pIntD(T.adv)}</td><td>${pIntD(T.tds)}</td><td>${pIntD(T.dep+T.adv+T.tds)}</td><td>${pIntD(T.net)}</td><td></td></tr></tbody></table>
-      ${nvSum(salBoxes(T.g,T.abs,T.arr,T.hol,T.dep+T.adv+T.tds,T.net,tk),inWords(Math.round(T.net)))}
-      ${xSign()}</div></div>`;
+      <tr><th>SL</th><th>Name</th><th>Designation</th><th>Joined</th><th>Gross</th><th>Present</th><th class="gB">Basic</th><th class="gB">House Rent</th><th class="gB">Conv.</th><th class="gB">Medical</th><th class="gB">Others</th><th class="gB">Days</th><th class="gB">Amount</th><th class="gB">Payable</th><th class="gA">Arrears</th><th class="gA">Holiday</th><th class="gA">Total</th><th class="gD">Deposit</th><th class="gD">Advance</th><th class="gD">TDS</th><th class="gD">Total</th></tr></thead>`,rows,tot:`<tr class="tot"><td></td><td class="l" colspan="3">Total (${sl} Employees)</td><td>${pIntD(T.g)}</td><td></td><td>${pIntD(T.b)}</td><td>${pIntD(T.r)}</td><td>${pIntD(T.cv)}</td><td>${pIntD(T.md)}</td><td>${pIntD(T.o)}</td><td></td><td>${pIntD(T.abs)}</td><td>${pIntD(T.pay)}</td><td>${pIntD(T.arr)}</td><td>${pIntD(T.hol)}</td><td>${pIntD(T.pay2)}</td><td>${pIntD(T.dep)}</td><td>${pIntD(T.adv)}</td><td>${pIntD(T.tds)}</td><td>${pIntD(T.dep+T.adv+T.tds)}</td><td>${pIntD(T.net)}</td><td></td></tr>`,after:`${nvSum(salBoxes(T.g,T.abs,T.arr,T.hol,T.dep+T.adv+T.tds,T.net,tk),inWords(Math.round(T.net)))}`});
   });
   doPrint(html,'landscape');
 }
@@ -2633,20 +2678,16 @@ function printOT(){
     sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td>${p2(T.h)}</td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
   let html=NV_CSS+`<div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Overtime Sheet — Top Sheet',[['OT Month',mon],['Month Days',daysInMonth(otMonth)],['Employees',G.n],['OT Rate',otInfo],['Status',st],['Sheet','1 of '+sheets]])}
     <table class="nvT"><colgroup><col style="width:5%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:14%"><col style="width:12%"></colgroup>
-    <thead><tr><th class="gE">SL</th><th class="gE">Category</th><th class="gE">Employees</th><th class="gB">OT Hours</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Remarks</th></tr></thead>
+    <thead><tr><th class="gE">SL</th><th class="gE">Category</th><th class="gE">Employees</th><th class="gB">OT Hours</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Remarks</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
     <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${p2(G.h)}</td><td>${p2D(G.net)}</td><td>${p2D(G.arr)}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
     ${nvSum([['Total OT Hours',p2(G.h)],['Arrears','Tk '+p2D(G.arr)],['Total Payable','Tk '+p2D(G.tot),'nt']],inWords(Math.round(G.tot)))}
     ${xSign()}</div></div>`;
   cats.forEach((c,ci)=>{
-    const list=m[c].filter(hasOT);let rows='',sl=0;const T={h:0,net:0,arr:0,tot:0};
+    const list=m[c].filter(hasOT);const rows=[];let sl=0;const T={h:0,net:0,arr:0,tot:0};
     list.forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);sl++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;
-      rows+=`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${p2(r.hrs)}</td><td>${p2(r.rate)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`;});
-    html+=`<div class="psheet xls${densClass(list.length)}"><div class="nv">${nvHead('Monthly Overtime Sheet',[['OT Month',mon],['Category',esc(c)],['OT Rate',otInfo],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets]])}
-      <table class="nvT"><colgroup><col style="width:4%"><col style="width:17%"><col style="width:13%"><col style="width:8%"><col style="width:8.5%"><col style="width:6.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:10.5%"></colgroup>
-      <thead><tr><th class="gE">SL</th><th class="gE">Name</th><th class="gE">Designation</th><th class="gE">Joined</th><th class="gB">Gross Salary</th><th class="gB">OT Hours</th><th class="gB">OT Rate</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Signature</th></tr></thead>
-      <tbody>${rows}<tr class="tot"><td></td><td class="l" colspan="4">Total (${sl} Employees)</td><td>${p2(T.h)}</td><td></td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td>${p2D(T.tot)}</td><td></td></tr></tbody></table>
-      ${nvSum([['Total OT Hours',p2(T.h)],['Arrears','Tk '+p2D(T.arr)],['Total Payable','Tk '+p2D(T.tot),'nt']],inWords(Math.round(T.tot)))}
-      ${xSign()}</div></div>`;
+      rows.push(`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${p2(r.hrs)}</td><td>${p2(r.rate)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`);});
+    html+=nvPages({dens:densClass(list.length),top:(pi,pn)=>nvHead('Monthly Overtime Sheet',[['OT Month',mon],['Category',esc(c)],['OT Rate',otInfo],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl:`<colgroup><col style="width:4%"><col style="width:17%"><col style="width:13%"><col style="width:8%"><col style="width:8.5%"><col style="width:6.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:10.5%"></colgroup>
+      <thead><tr><th class="gE">SL</th><th class="gE">Name</th><th class="gE">Designation</th><th class="gE">Joined</th><th class="gB">Gross Salary</th><th class="gB">OT Hours</th><th class="gB">OT Rate</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Signature</th></tr></thead>`,rows,tot:`<tr class="tot"><td></td><td class="l" colspan="4">Total (${sl} Employees)</td><td>${p2(T.h)}</td><td></td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td>${p2D(T.tot)}</td><td></td></tr>`,after:`${nvSum([['Total OT Hours',p2(T.h)],['Arrears','Tk '+p2D(T.arr)],['Total Payable','Tk '+p2D(T.tot),'nt']],inWords(Math.round(T.tot)))}`});
   });
   doPrint(html,'landscape');
 }
@@ -2864,6 +2905,14 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'2.6.5',d:'02 Nov 2026',t:'Salary/OT Print আরও কম জায়গায়',items:[
+    'স্বাক্ষর সবসময় শেষ পাতার একদম নিচে — কর্মী বেশি হলে সফটওয়্যার নিজেই প্রতিটা সারি মেপে পাতা ভাগ করে; প্রতি পাতায় শিরোনাম, "Page 1/2" ও "Continued on next page"',
+    'সারাংশ বাক্স আবার টেবিলের ঠিক নিচে লেগে থাকে — মাঝে ফাঁকা জায়গা নেই',
+    'নাম ও পদবী আর দুই-তিন লাইনে ভাঙে না — এক লাইনে থাকে, তাই সারি পাতলা; পদবী ও নামের কলাম একটু চওড়া',
+    'নিচের সারাংশ বাক্সে শিরোনাম ও টাকা এক লাইনে — অর্ধেক জায়গা লাগে, স্বাক্ষরের জন্য বেশি জায়গা',
+    'স্বাক্ষরের জন্য সবসময় কমপক্ষে ~১.৫ ইঞ্চি ফাঁকা জায়গা — টেবিল লম্বা হয়ে পরের পাতায় গেলেও; স্বাক্ষরের সারি কখনো দুই পাতায় ভাঙে না',
+    'কর্মী বেশি হলে টেবিল পরের পাতায় চলে যায়, কলামের শিরোনাম আবার বসে; প্রতি পাতার নিচে Footer এর জায়গা রাখা — সারি আর Footer এর নিচে চাপা পড়ে না; সারাংশ ও স্বাক্ষর ভাঙে না'
+  ]},
   {v:'2.6.1',d:'02 Nov 2026',t:'Print বাক্সে প্রিন্টারের কাগজ মেলানোর নির্দেশনা',items:[
     'Print বাক্সে মনে করিয়ে দেয়: প্রিন্টারে দিলে Print উইন্ডোর More settings → Paper size ও Scale ঠিক করতে হবে'
   ]},
