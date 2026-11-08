@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>AMAZ HR — Employee & Payroll</title>
 <!-- v2.3 — খোলার সময় এক পলকের জন্য সফটওয়্যারের ভেতর দেখা না যাওয়ার জন্য: সেশন না থাকলে Login পাতা সরাসরি, থাকলে Boot শেষ না হওয়া পর্যন্ত লুকানো -->
-<script>(function(){var d=document.documentElement,has=false;try{has=!!(sessionStorage.getItem('amaz_hr_cu')||localStorage.getItem('amaz_hr_cu_remember')||sessionStorage.getItem('amaz_hr_ess'));}catch(e){}
+<script>
+/* তারিখ সবসময় local (Bangladesh) সময়ে — toISOString() UTC দেয়, রাত ১২টা–সকাল ৬টার মধ্যে আগের দিন / আগের মাস দেখাত */
+function _ymd(d){ d=(d instanceof Date)?d:new Date(d==null?Date.now():d); if(isNaN(d)) return ''; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+(function(){var d=document.documentElement,has=false;try{has=!!(sessionStorage.getItem('amaz_hr_cu')||localStorage.getItem('amaz_hr_cu_remember')||sessionStorage.getItem('amaz_hr_ess'));}catch(e){}
 d.classList.add(has?'hrBooting':'hrNeedLogin');setTimeout(function(){d.classList.remove('hrBooting');},8000);})();</script>
 <style>html.hrBooting body{visibility:hidden}html.hrNeedLogin #loginGate{display:flex}</style>
 <!-- v2.0 — PWA (GitHub Pages এ manifest/sw.js/আইকন সহ থাকলে ইনস্টলযোগ্য ও অফলাইন; একা ফাইল খুললে নিরীহভাবে উপেক্ষিত) -->
@@ -443,6 +446,19 @@ table.t input.cell.w70{width:70px}
 /* ===== Modal ===== */
 .overlay{position:fixed;inset:0;background:transparent;backdrop-filter:blur(3px) saturate(105%);-webkit-backdrop-filter:blur(3px) saturate(105%);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .overlay.show{display:flex}
+#updBar{position:fixed;left:50%;top:10px;transform:translate(-50%,-140%);z-index:500;display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:min(92vw,760px);padding:10px 14px;border-radius:12px;background:var(--panel,#fff);border:1px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.18);font-size:13px;transition:transform .35s ease}
+#updBar.on{transform:translate(-50%,0)}#updBar .upd-note{color:var(--muted)}
+.lgCloudStat{margin-top:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:12px;color:#475569;text-align:center}
+.lgCloudStat button{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer}
+#view.vfade{animation:vfade .28s ease-out}
+@keyframes vfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#view.vfade{animation:none}#updBar{transition:none}}
+@media print{#updBar{display:none!important}}
+.lic-ban{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:11px 14px;margin-bottom:14px;border-radius:10px;border:1px solid rgba(217,119,6,.45);background:rgba(217,119,6,.10);font-size:13px}
+.lic-ban.bad{border-color:rgba(220,38,38,.5);background:rgba(220,38,38,.10)}
+.lic-tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--bg2);border:1px solid var(--border2)}
+.lic-tag.ok{color:#16a34a;border-color:rgba(22,163,74,.5)}.lic-tag.warn{color:#d97706;border-color:rgba(217,119,6,.5)}.lic-tag.bad{color:#dc2626;border-color:rgba(220,38,38,.5)}
+textarea.inp{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 10px;resize:vertical}
 @keyframes modalPopIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .modal{background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.28);border-radius:18px;
   backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
@@ -888,6 +904,7 @@ body:not(.light) ::placeholder{color:#74869f}
       <a href="javascript:void(0)" onclick="_toggleLoginMode()" id="lgModeToggle" class="lgLink">👤 কর্মচারী হিসেবে লগইন (Payslip/ছুটি)</a>
     </div>
     <div style="text-align:center;margin-top:12px"><a href="javascript:void(0)" onclick="lgCloudOpen()" class="lgLink lgCloudLink" id="lgCloudLink">☁️ Cloud Setup — নতুন device এ ডাটা আনুন</a></div>
+    <div id="lgCloudStat" class="lgCloudStat" style="display:none"></div>
     <div class="lgFoot">Powered by AMAZ ERP SOLUTION</div>
   </div>
   </div>
@@ -1011,7 +1028,7 @@ function makeRecoveryKey(){
       <div class="note">এই Key <b>শুধু এখনই একবার</b> দেখানো হচ্ছে — লিখে বা প্রিন্ট করে নিরাপদ জায়গায় রাখুন। Admin পাসওয়ার্ড ভুলে গেলে Login পাতায় “পাসওয়ার্ড ভুলে গেছেন?” থেকে এটা দিয়ে নতুন পাসওয়ার্ড বসানো যাবে।</div>
       <div style="font-family:var(--mono,monospace);font-size:22px;font-weight:700;text-align:center;letter-spacing:2px;padding:16px;margin-top:12px;border:2px dashed var(--gold,#e7b94d);border-radius:10px;user-select:all">${key}</div>
     </div>
-    <div class="modal-f"><button class="btn" onclick="try{navigator.clipboard.writeText('${key}');toast('Copy হয়েছে')}catch(e){}">📋 Copy</button><button class="btn gold" onclick="closeM()">রেখে দিয়েছি</button></div>
+    <div class="modal-f"><button class="btn" onclick="_copyText('${key}')">📋 Copy</button><button class="btn gold" onclick="closeM()">রেখে দিয়েছি</button></div>
   </div>`;
   $('#overlay').classList.add('show');
 }
@@ -1420,6 +1437,9 @@ function load(){try{const r=_unpackState(localStorage.getItem(KEY));S=r?JSON.par
     });
     S._attPermV1=true;
   }
+  if(!Array.isArray(S.licDevices))S.licDevices=[];
+  if(!Array.isArray(S.loginLog))S.loginLog=[];
+  if(!Array.isArray(S.recycleBin))S.recycleBin=[];
   if(!Array.isArray(S.deviceHeartbeats))S.deviceHeartbeats=[];
   if(!Array.isArray(S.deviceControls))S.deviceControls=[];
   // one-time repair: bonus sheets created by an older Import build had no `emps` snapshot,
@@ -1542,7 +1562,7 @@ function _snapshotPayload(){
   return JSON.stringify(out);
 }
 function maybeSnapshot(){
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   if(_snapCheckedToday===today)return;
   _snapCheckedToday=today;
   const payload=_snapshotPayload();
@@ -1669,7 +1689,11 @@ window.addEventListener('storage', function(e){
 
 /* ============ HELPERS ============ */
 const $=s=>document.querySelector(s);
-function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+function num(v){if(typeof v==='number')return isFinite(v)?v:0;if(v==null||v==='')return 0;
+  // "15,000" / "৳ 15,000" / বাংলা অঙ্ক "১৫০০০" — Excel import বা হাতে লেখা মান ঠিকভাবে পড়া
+  const t=String(v).replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/[,\s৳]/g,'');const n=parseFloat(t);return isFinite(n)?n:0;}
+function _copyText(t,msg){const ok=()=>toast(msg||'📋 Copy হয়েছে');const fb=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok();}catch(e){toast('Copy করা গেল না — হাতে select করে copy করুন');}ta.remove();};
+  try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,fb);else fb();}catch(e){fb();}}
 function r2(n){return Math.round(n*100)/100;}
 function fmt(n){return '৳'+Number(r2(n)).toLocaleString('en-IN',{maximumFractionDigits:2});}
 function fmtn(n){return Number(r2(n)).toLocaleString('en-IN',{maximumFractionDigits:2});}
@@ -1895,7 +1919,7 @@ function closeTMenus(){document.querySelectorAll('.tmenu.open').forEach(m=>m.cla
 function monthLock(k){const a=S.salary&&S.salary[k],b=S.ot&&S.ot[k];return (a&&a.lock)||(b&&b.lock)||null;}
 function monthLockGuard(k){
   const l=monthLock(k); if(!l)return false;
-  toast('🔒 '+monthLabel(k)+' Lock করা ('+(l.by||'')+', '+fmtDateP(String(l.at||'').slice(0,10))+') — বদলানো যাবে না। Admin Unlock করতে পারবেন');
+  toast('🔒 '+monthLabel(k)+' Lock করা ('+(l.by||'')+', '+fmtDateP(l.at?_ymd(l.at):'')+') — বদলানো যাবে না। Admin Unlock করতে পারবেন');
   return true;
 }
 function _isAdmin(){const r=curRole();return !!(r&&r.admin);}
@@ -2021,7 +2045,7 @@ function lvBalNote(){
 function lvTypeAuto(){
   if(lvCode(($('#lv_type')||{}).value)!=='ML')return;
   const f=$('#lv_from'),t=$('#lv_to'); if(!f||!t||!f.value)return;
-  if(!t.value||t.value===f.value){const d=new Date(f.value+'T00:00');d.setDate(d.getDate()+num(lvPol().ml)-1);t.value=d.toISOString().slice(0,10);lvDays();}
+  if(!t.value||t.value===f.value){const d=new Date(f.value+'T00:00');d.setDate(d.getDate()+num(lvPol().ml)-1);t.value=_ymd(d);lvDays();}
 }
 // সেভের আগে: পাওনার বেশি হলে জিজ্ঞেস
 function lvCheckOver(empId,type,days,from,exceptId){
@@ -2071,7 +2095,7 @@ function encSave(){
   const x=lvSummary(e,yr).EL; if(d>x.bal&&!confirm(`ব্যালেন্স ${x.bal} দিন, নগদায়ন ${d} দিন — তবুও?`))return;
   const amount=Math.round(d*lvEncashBasis(e)), mk=$('#enc_sal').value;
   if(mk){if(monthLockGuard(mk))return;const sh=ensureSal(mk);const row=sh.rows[e.id]||(sh.rows[e.id]={});if(row._cat==null){row._cat=e.category;row._payMode=e.payMode||'';row._daily=e.daily!=null?e.daily:null;}row.arrears=num(row.arrears)+amount;row._t=Date.now();}
-  const rec={id:'enc_'+Date.now(),empId:e.id,year:yr,days:d,amount,rate:Math.round(lvEncashBasis(e)*100)/100,salMonth:mk||'',note:($('#enc_note').value||'').trim(),date:new Date().toISOString().slice(0,10),by:(CU&&CU.name)||''};
+  const rec={id:'enc_'+Date.now(),empId:e.id,year:yr,days:d,amount,rate:Math.round(lvEncashBasis(e)*100)/100,salMonth:mk||'',note:($('#enc_note').value||'').trim(),date:_ymd(new Date()),by:(CU&&CU.name)||''};
   (S.leaveEncash||(S.leaveEncash=[])).push(rec);
   auditLog('EL Encash',e.name+' — '+d+' days, ৳'+fmtn(amount)+(mk?' → Salary '+mk:''));save();closeM();
   toast('✅ নগদায়ন সেভ হয়েছে');if(cur==='leave')renderLeave();
@@ -2275,7 +2299,7 @@ function bioApply(){
 /* ---------- ৪. Reminder + Employee Lifecycle ---------- */
 function probEnd(e){
   if(!e.join)return null; const m=(e.probMonths!=null&&e.probMonths!=='')?num(e.probMonths):(e.category==='Factory Admin'?6:3);
-  if(!m)return null; const d=new Date(e.join+'T00:00'); d.setMonth(d.getMonth()+m); return d.toISOString().slice(0,10);
+  if(!m)return null; const d=new Date(e.join+'T00:00'); d.setMonth(d.getMonth()+m); return _ymd(d);
 }
 function _daysTo(d){if(!d)return null;const a=new Date(d+'T00:00'),t=new Date();t.setHours(0,0,0,0);return Math.round((a-t)/86400000);}
 function _nextAnniv(md){ // 'MM-DD' → এ বছরের/পরের বছরের তারিখ পর্যন্ত দিন
@@ -2323,7 +2347,7 @@ function trAdd(rec){(S.transfers||(S.transfers=[])).push(Object.assign({id:'tr_'
 function transferModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
   if(!canDo('emp','edit')){denyToast();return;}
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   $('#overlay').innerHTML=`<div class="modal" style="max-width:460px"><div class="modal-h"><h3>🔁 Transfer / বিভাগ বদল</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b"><div class="note" style="padding:8px 12px;margin-bottom:12px"><b>${esc(e.name)}</b> — এখন: ${esc(e.section||'—')} · ${esc(e.designation||'—')} · ${esc(e.category||'')}</div>
       <div class="grid2"><div><label class="lbl">কার্যকর তারিখ</label><input class="inp" type="date" id="tr_date" value="${today}"></div>
@@ -2350,7 +2374,7 @@ const WARN_LEVELS=[['1st','প্রথম সতর্কতা','First Warning
 function warningModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
   if(!canDo('emp','edit')){denyToast();return;}
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const prev=(S.discipline||[]).filter(d=>d.empId===id&&d.type==='warning').length;
   $('#overlay').innerHTML=`<div class="modal" style="max-width:480px"><div class="modal-h"><h3>⚠ Warning Letter / শৃঙ্খলা রেকর্ড</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b"><div class="note" style="padding:8px 12px;margin-bottom:12px"><b>${esc(e.name)}</b> — আগের Warning: <b>${prev}</b> টি</div>
@@ -2413,7 +2437,7 @@ function printWarning(e,rec,withLH){
 function confirmModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
   if(!canDo('emp','edit')){denyToast();return;}
-  const pe=probEnd(e)||new Date().toISOString().slice(0,10);
+  const pe=probEnd(e)||_ymd(new Date());
   $('#overlay').innerHTML=`<div class="modal" style="max-width:460px"><div class="modal-h"><h3>✓ চাকরি স্থায়ীকরণ (Confirmation)</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b"><div class="note" style="padding:8px 12px;margin-bottom:12px"><b>${esc(e.name)}</b> — যোগদান ${fmtDateP(e.join)} · Probation শেষ ${fmtDateP(probEnd(e))}</div>
       <div class="grid2"><div><label class="lbl">স্থায়ী হওয়ার তারিখ</label><input class="inp" type="date" id="cf_date" value="${pe}"></div>
@@ -2692,6 +2716,547 @@ function printOT(){
   doPrint(html,'landscape');
 }
 
+
+/* ===================== v2.7 — LICENSE (offline key) — Product Costing / Visa Renewal এর হুবহু একই ব্যবস্থা =====================
+   Key = 'AMAZ1-' + base64url(JSON) + '.' + base64url(ECDSA P-256 signature)। Public key এখানে, private key শুধু
+   "AMAZ License Generator" ফাইলে (vendor এর কাছে) — AMAZ HR এর নিজস্ব Key জোড়া, product = 'hr'।
+   Key না থাকলে ৩০ দিন Trial; মেয়াদ/Trial শেষ হলে (৭ দিন grace এর পর) সফটওয়্যার READ-ONLY — দেখা, Print, PDF,
+   Excel, Backup চলে; নতুন/বদল/মোছা বন্ধ। কোনো ডাটা মোছে না। PC সংখ্যা Cloud Sync দিয়ে গোনা হয়।
+   Key এর ভেতরে চুক্তি থাকলে (মাসিক/বছর…, টাকা, vendor এর payment তথ্য) মেয়াদ শেষের ১৫ দিন আগে থেকে Bill দেখায়। */
+const LIC_PUB={"kty": "EC", "x": "EdaQz3w1U9IBRb5Gu0W8KW_3rpdyV4gaB-1arMde7WM", "y": "jeEtqxqGrY9q8jOFY0mbpAHD5lS17I0KHV8hKGGBsZI", "crv": "P-256"};
+const LIC_PRODUCT='hr', LIC_PRODUCT_NAME='AMAZ HR — Employee & Payroll', LIC_TRIAL_DAYS=30, LIC_GRACE_DAYS=7, LIC_DEV_ACTIVE_DAYS=45;
+var _lic={status:'checking'}, _billShownAt=0, _billLoginShown=false;
+function L2(bn,en){ return bn; }
+function licToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _b64uDec(t){ t=String(t||'').replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t+='='; const b=atob(t), a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+async function licVerify(key){
+  try{
+    key=String(key||'').trim().replace(/\s+/g,'');
+    const m=/^AMAZ1-([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/.exec(key); if(!m) return null;
+    if(!(window.crypto&&crypto.subtle)) return null;
+    const pk=await crypto.subtle.importKey('jwk',LIC_PUB,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+    const ok=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},pk,_b64uDec(m[2]),new TextEncoder().encode(m[1]));
+    if(!ok) return null;
+    const p=JSON.parse(new TextDecoder().decode(_b64uDec(m[1])));
+    if(p.p!==LIC_PRODUCT) return null;
+    return p;
+  }catch(e){ return null; }
+}
+async function licProductOf(key){ try{ const m=/^AMAZ1-([A-Za-z0-9_-]+)\./.exec(String(key||'').replace(/\s+/g,'')); return m?JSON.parse(new TextDecoder().decode(_b64uDec(m[1]))).p:''; }catch(e){ return ''; } }
+function licDeviceId(){ return _devId(); }
+function _daysBetweenL(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5); }
+function licTrialStart(){
+  let t=(S.settings&&S.settings.trialStart)||'';
+  try{ const l=localStorage.getItem('amazHrTrial0')||''; if(l&&(!t||l<t)) t=l; }catch(e){}
+  return t;
+}
+async function licRefresh(){
+  try{
+    if(!S.settings)S.settings={};
+    const today=licToday(); let dirty=false;
+    if(!licTrialStart()){ S.settings.trialStart=today; try{ localStorage.setItem('amazHrTrial0',today); }catch(e){} dirty=true; }
+    else { try{ if(!localStorage.getItem('amazHrTrial0')) localStorage.setItem('amazHrTrial0',licTrialStart()); }catch(e){}
+      if(S.settings.trialStart!==licTrialStart()){ S.settings.trialStart=licTrialStart(); dirty=true; } }
+    const key=S.settings.licKey||'';
+    const p=key?await licVerify(key):null;
+    let L;
+    if(!p){
+      const used=_daysBetweenL(licTrialStart(),today), left=LIC_TRIAL_DAYS-used;
+      L={status:left>=0?'trial':'trialover', left:left, badKey:!!key};
+    } else {
+      L={status:'ok', p:p, client:p.c, exp:p.e||'', pcs:Number(p.n)||0};
+      if(L.exp){ const d=_daysBetweenL(today,L.exp); L.left=d; if(d<0) L.status=(-d<=LIC_GRACE_DAYS)?'grace':'expired'; }
+      if(L.pcs>0 && CU){
+        const me=licDeviceId(); if(!Array.isArray(S.licDevices)) S.licDevices=[];
+        const DL=S.licDevices; let mine=DL.find(x=>x&&x.id===me);
+        if(!mine){ mine={id:me, name:_devName(), at:new Date().toISOString(), seen:today}; DL.push(mine); dirty=true; }
+        else if(!mine.del && mine.seen!==today){ mine.seen=today; mine.name=_devName()||mine.name; mine._t=Date.now(); dirty=true; }
+        const cut=_ymd(new Date(Date.now()-LIC_DEV_ACTIVE_DAYS*864e5));
+        const act=DL.filter(x=>x&&!x.del&&String(x.seen||'')>=cut).sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+        L.devices=act.length;
+        const idx=act.findIndex(x=>x.id===me);
+        if(mine.del||idx<0||idx>=L.pcs){ if(L.status==='ok'||L.status==='grace') L.status='pclimit'; }
+      }
+    }
+    const was=_lic.status; _lic=L;
+    if(dirty) save();
+    if(CU&&was!==L.status&&typeof go==='function'&&typeof cur!=='undefined'){ try{ applyRole&&applyRole(); }catch(e){} go(cur); }
+  }catch(e){ _lic={status:'trial', left:LIC_TRIAL_DAYS}; }
+  try{ setTimeout(licBillOnLogin,500); }catch(e){}
+  return _lic;
+}
+function licReadOnly(){ return ['expired','trialover','pclimit'].indexOf(_lic.status)>-1; }
+function licBlockedNotice(){
+  toast(licMsg()||'License সমস্যা — শুধু দেখা যাবে');
+  if(Date.now()-_billShownAt>60000 && !document.querySelector('#licBillModal')) setTimeout(openLicBill,300);
+}
+function licMsg(){
+  const L=_lic;
+  if(L.status==='trialover') return '⛔ Trial শেষ — সফটওয়্যার এখন READ-ONLY (দেখা, Print, PDF, Excel, Backup চলবে)। License key নিতে vendor এর সাথে যোগাযোগ করুন।';
+  if(L.status==='expired') return '⛔ License এর মেয়াদ শেষ ('+L.exp+') — সফটওয়্যার READ-ONLY। Renew করতে vendor এর সাথে যোগাযোগ করুন।';
+  if(L.status==='pclimit') return '⛔ License এ '+L.pcs+' টা PC — এই PC সীমার বাইরে, তাই READ-ONLY। Admin: Settings ▸ License থেকে পুরনো PC সরান।';
+  if(L.status==='grace') return '⚠️ License এর মেয়াদ '+L.exp+' এ শেষ — '+(LIC_GRACE_DAYS+L.left)+' দিন পর READ-ONLY হবে। তাড়াতাড়ি renew করুন।';
+  if(L.status==='trial') return '🧪 Trial — '+L.left+' দিন বাকি। License key দিয়ে চালু করুন (Settings ▸ License)।';
+  if(L.status==='ok'&&L.exp&&L.left<=15) return '🔔 License '+L.exp+' এ শেষ হবে ('+L.left+' দিন বাকি) — renew করুন।';
+  return '';
+}
+function licGoSettings(){ go('settings'); setTimeout(()=>{const e=document.getElementById('licBox'); if(e) e.scrollIntoView({behavior:'smooth',block:'start'});},200); }
+function licBannerHTML(){
+  const m=licMsg(); if(!m) return '';
+  if(_lic.status==='trial'&&_lic.left>7&&!_isAdmin()) return '';
+  const bad=licReadOnly(), B=licBill();
+  return '<div class="lic-ban'+(bad?' bad':'')+'"><div style="flex:1;min-width:220px">'+m+
+    (B.has?'<div style="margin-top:4px;font-size:12.5px">💳 Bill: <b>'+esc(licMoney(B.total))+'</b> ('+esc(B.periods.map(x=>x.label).join(', '))+')</div>':'')+'</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">'+((B.has||bad)?'<button class="btn sm '+(bad?'danger':'gold')+'" onclick="openLicBill()">💳 Bill দেখুন</button>':'')+
+    (_isAdmin()?'<button class="btn sm ghost" onclick="licGoSettings()">🔑 License</button>':'')+'</div></div>';
+}
+async function licActivate(elId){
+  if(!_isAdmin()){ toast('শুধু Admin পারেন'); return; }
+  const key=((document.getElementById(elId||'lic_key')||{}).value||'').trim();
+  if(!key){ toast('License key দিন'); return; }
+  const p=await licVerify(key);
+  if(!p){ const pr=await licProductOf(key);
+    toast(pr&&pr!==LIC_PRODUCT?'❌ এটা অন্য সফটওয়্যারের ('+pr+') key — AMAZ HR এর key দিন':'❌ Key টা ঠিক না'); return; }
+  S.settings.licKey=key.replace(/\s+/g,'');
+  try{ auditLog('License','Activate — '+p.c+' · মেয়াদ '+(p.e||'lifetime')+' · PC '+(p.n||'unlimited')); }catch(e){}
+  save(); flushPersist(); await licRefresh();
+  const mb=document.getElementById('licBillModal'); if(mb) mb.remove();
+  toast('✓ License চালু — '+p.c+(p.e?' · '+p.e+' পর্যন্ত':''));
+  if(cur==='settings')renderSettings();
+}
+async function licRemoveDevice(id){
+  if(!_isAdmin()) return;
+  const d=(S.licDevices||[]).find(x=>x.id===id); if(!d) return;
+  if(!confirm('"'+(d.name||id)+'" PC টা License থেকে সরাবেন? (ওই PC আবার খুললে আবার যোগ হবে — জায়গা থাকলে।)')) return;
+  d.del=true; d._t=Date.now(); save(); await licRefresh(); if(cur==='settings')renderSettings();
+}
+function licensePanelHTML(){
+  const L=_lic, me=licDeviceId();
+  const st={ok:['✓ Active','ok'],grace:['⚠ Grace','warn'],expired:['⛔ Expired','bad'],trial:['🧪 Trial','warn'],trialover:['⛔ Trial শেষ','bad'],pclimit:['⛔ PC limit','bad'],checking:['…','']}[L.status]||['?',''];
+  const cut=_ymd(new Date(Date.now()-LIC_DEV_ACTIVE_DAYS*864e5));
+  const devs=(S.licDevices||[]).filter(x=>x&&!x.del).sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+  const pl=licPlan(), B=licBill(), td='style="padding:7px 10px;border-bottom:1px solid var(--border)"', tdl='class="muted" style="padding:7px 10px;border-bottom:1px solid var(--border);width:170px"';
+  let h='<div class="panel" id="licBox" style="margin-bottom:20px"><div class="panel-h"><h2 style="flex:1">🔑 License <small>'+LIC_PRODUCT_NAME+'</small></h2><span class="lic-tag '+st[1]+'">'+st[0]+'</span></div><div style="padding:16px 18px">';
+  if(licMsg()) h+='<p style="font-size:13px;margin:0 0 12px">'+licMsg()+'</p>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>'+
+    '<tr><td '+tdl+'>Client</td><td '+td+'><b>'+esc(L.client||'—')+'</b></td></tr>'+
+    '<tr><td '+tdl+'>মেয়াদ</td><td '+td+'>'+(L.status==='trial'||L.status==='trialover'?'Trial শুরু: '+esc(licTrialStart())+' · শেষ: '+esc(_dShort(_dAdd(licTrialStart()||licToday(),LIC_TRIAL_DAYS))):(L.exp?esc(L.exp):'Lifetime (সবসময়)'))+'</td></tr>'+
+    '<tr><td '+tdl+'>PC</td><td '+td+'>'+(L.pcs?((L.devices||0)+' / '+L.pcs):(L.status==='ok'||L.status==='grace'?'Unlimited':'—'))+'</td></tr>';
+  if(pl){
+    h+='<tr><td '+tdl+'>চুক্তি</td><td '+td+'><b>'+esc(pl.bn)+'</b>'+(licRate(pl)?' — '+esc(licRate(pl)):'')+(pl.note?'<div class="muted" style="font-size:11.5px">'+esc(pl.note)+'</div>':'')+'</td></tr>'+
+      '<tr><td '+tdl+'>Paid সময়</td><td '+td+'>'+esc(licPaidRange())+'</td></tr>'+
+      '<tr><td '+tdl+'>Bill</td><td '+td+'>'+(B.has?'<b style="color:var(--red)">'+(B.due?'বাকি':'আগামী')+' '+esc(licMoney(B.total))+'</b> ('+esc(B.periods.map(x=>x.label).join(', '))+')'
+        :(B.next?'পরের bill: <b>'+esc(B.next.label)+'</b> — '+esc(licMoney(B.next.amt))+' · দিতে হবে '+esc(B.next.by):'—'))+
+        ' <button class="btn sm ghost" style="margin-left:6px" onclick="openLicBill()">💳 Bill দেখুন</button></td></tr>';
+  }
+  h+='<tr><td '+tdl+'>এই PC এর ID</td><td '+td+'><code>'+esc(me)+'</code> · '+esc(_devName())+'</td></tr></tbody></table>';
+  if(L.pcs&&devs.length){
+    h+='<div style="margin-top:14px"><b style="font-size:12.5px">💻 License এর PC গুলো</b><div class="tw" style="margin-top:6px"><table class="t"><thead><tr><th>PC</th><th>যোগ</th><th>শেষ দেখা</th><th></th></tr></thead><tbody>'+
+      devs.map(d=>'<tr><td>'+esc(d.name||d.id)+(d.id===me?' <span class="lic-tag ok">এই PC</span>':'')+(String(d.seen||'')<cut?' <span class="lic-tag">বন্ধ</span>':'')+'</td><td>'+esc(d.at?_ymd(d.at):'')+'</td><td>'+esc(d.seen||'')+'</td>'+
+        '<td class="r">'+(_isAdmin()&&d.id!==me?'<button class="btn sm ghost" onclick="licRemoveDevice(\''+esc(d.id)+'\')">সরান</button>':'')+'</td></tr>').join('')+'</tbody></table></div>'+
+      '<div class="muted" style="margin-top:4px;font-size:11.5px">'+LIC_DEV_ACTIVE_DAYS+' দিন না খোলা PC নিজেই গোনা থেকে বাদ যায়। PC গোনা Cloud Sync দিয়ে হয়।</div></div>';
+  }
+  if(_isAdmin()) h+='<label class="lbl" style="margin-top:14px">🔑 License Key বসান</label>'+
+    '<textarea class="inp" id="lic_key" rows="3" style="font-family:monospace;font-size:11.5px" placeholder="AMAZ1-…"></textarea>'+
+    '<button class="btn gold" style="margin-top:8px" onclick="licActivate()">✓ Activate</button>';
+  h+='<div class="note" style="margin-top:12px;line-height:1.6">মেয়াদ শেষ হলেও কোনো ডাটা মোছে না — শুধু নতুন / বদল / মোছা বন্ধ থাকে; দেখা, Print, PDF, Excel, Backup চলে। Key সব PC তে sync হয়।</div>';
+  return h+'</div></div>';
+}
+/* ---------- LICENSE BILLING ---------- */
+const LIC_PLANS={m:{mon:1,en:'Monthly',bn:'মাসিক'},q:{mon:3,en:'Quarterly',bn:'৩ মাস'},h:{mon:6,en:'Half-yearly',bn:'৬ মাস'},y:{mon:12,en:'Yearly',bn:'বছর'},o:{mon:0,en:'One-time',bn:'একবার'},l:{mon:0,en:'Lifetime',bn:'Lifetime'}};
+const LIC_VENDOR_DEFAULT={n:'AMAZ ERP Solution',ph:'',pay:''};
+const LIC_MON3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LIC_MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function _dAdd(d,days){ const x=new Date(d+'T00:00:00Z'); x.setUTCDate(x.getUTCDate()+days); return x.toISOString().slice(0,10); }
+function _mAdd(d,k){ const a=d.split('-').map(Number), t=new Date(Date.UTC(a[0],a[1]-1+k,1)), last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();
+  return t.getUTCFullYear()+'-'+String(t.getUTCMonth()+1).padStart(2,'0')+'-'+String(Math.min(a[2],last)).padStart(2,'0'); }
+function _dShort(d){ const a=String(d||'').split('-').map(Number); return a.length===3?String(a[2]).padStart(2,'0')+' '+LIC_MON3[a[1]-1]+' '+a[0]:String(d||''); }
+function licVendor(){ const p=_lic.p||{}; return Object.assign({},LIC_VENDOR_DEFAULT,p.v||{}); }
+function licVendorPhone(V){
+  const raw=String((V&&V.ph)||'').trim(); if(!raw) return '';
+  let d=raw.replace(/\D/g,''); if(!d) return '';
+  if(raw.charAt(0)==='+') return d;
+  if(d.indexOf('00')===0) return d.slice(2);
+  const cc=String((V&&V.cc)||'880').replace(/\D/g,'')||'880';
+  if(d.indexOf(cc)===0) return d;
+  if(d.charAt(0)==='0') d=d.slice(1);
+  return cc+d;
+}
+function licVendorWa(V,text){ return 'https://wa.me/'+licVendorPhone(V)+'?text='+encodeURIComponent(text); }
+function licPlan(){ const p=_lic.p||{}, b=p.b||{}, pl=LIC_PLANS[b.pl]||null; return pl?Object.assign({key:b.pl,amt:Number(b.amt)||0,cur:b.cur||'BDT',from:b.f||'',note:b.ct||''},pl):null; }
+function licPaidRange(){ const pl=licPlan(), L=_lic; if(!L.p) return ''; return (pl&&pl.from?pl.from:'…')+' → '+(L.exp||'সবসময়'); }
+function licRate(pl){ return pl&&pl.mon&&pl.amt?licMoney(pl.amt)+' '+(pl.mon===1?'প্রতি মাস':pl.mon===12?'প্রতি বছর':'প্রতি '+pl.mon+' মাস'):''; }
+function licMoney(v){ const pl=licPlan(); return (pl?pl.cur:'BDT')+' '+fmtn(Math.round(num(v))); }
+function licBill(){
+  const L=_lic, pl=licPlan();
+  const out={has:false,plan:pl,periods:[],total:0,vendor:licVendor(),due:false,upcoming:false};
+  if(!L.p||!L.exp||!pl||!pl.mon||!(pl.amt>0)) return out;
+  const today=licToday(); let from=_dAdd(L.exp,1);
+  const lab=(f,t)=>(pl.mon===1&&f.slice(8)==='01')?LIC_MONF[Number(f.slice(5,7))-1]+' '+f.slice(0,4):_dShort(f)+' – '+_dShort(t);
+  if(!(L.left<=15)){ const to=_dAdd(_mAdd(from,pl.mon),-1); out.next={from,to,by:L.exp,amt:pl.amt,label:lab(from,to)}; return out; }
+  out.has=true; out.due=today>L.exp; out.upcoming=!out.due;
+  for(let i=0;i<60;i++){ const to=_dAdd(_mAdd(from,pl.mon),-1); out.periods.push({from,to,label:lab(from,to),amt:pl.amt}); from=_dAdd(to,1); if(from>today) break; }
+  out.total=out.periods.reduce((t,x)=>t+x.amt,0);
+  out.overdueDays=out.due?_daysBetweenL(L.exp,today):0;
+  return out;
+}
+function licBillText(){
+  const L=_lic, B=licBill(), pl=B.plan;
+  const out=[LIC_PRODUCT_NAME+' — License billing','Client: '+(L.client||(S.settings&&S.settings.company)||'—')];
+  if(pl) out.push('Plan: '+pl.en+(pl.amt&&pl.mon?' · '+licMoney(pl.amt):'')+(pl.note?' · '+pl.note:''));
+  if(L.p) out.push('Paid period: '+licPaidRange());
+  if(L.status==='trialover'||L.status==='trial') out.push('Trial started: '+licTrialStart()+(L.status==='trialover'?' (ended)':''));
+  if(B.has){ out.push(B.due?'Bills due:':'Upcoming bill:'); B.periods.forEach((x,i)=>out.push((i+1)+'. '+x.label+' — '+licMoney(x.amt))); out.push('Total: '+licMoney(B.total)); }
+  else if(B.next) out.push('Next bill: '+B.next.label+' — '+licMoney(B.next.amt)+' (due by '+B.next.by+')');
+  out.push('PC ID: '+licDeviceId()+' ('+_devName()+')');
+  return out.join('\n');
+}
+function licBillCopy(){
+  const V=licBill().vendor, t=licBillText()+(V.pay?'\n\nPay to:\n'+(V.n?V.n+'\n':'')+V.pay:'');
+  const fb=()=>{ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('📋 Bill copy হয়েছে'); }catch(e){} ta.remove(); };
+  try{ navigator.clipboard.writeText(t).then(()=>toast('📋 Bill copy হয়েছে'),fb); }catch(e){ fb(); }
+}
+function licBillOnLogin(){ try{ if(CU&&licReadOnly()&&!_billLoginShown&&!document.querySelector('#licBillModal')){ _billLoginShown=true; openLicBill(); } }catch(e){} }
+function openLicBill(){
+  const L=_lic, B=licBill(), V=B.vendor, pl=B.plan;
+  const waText='Assalamu Alaikum.\n\n'+licBillText()+'\n\nPlease send the payment details / new license key.';
+  const st=L.status==='trialover'?'Trial শেষ':(B.due?'মেয়াদ শেষ '+L.exp+' — '+B.overdueDays+' দিন আগে':(L.exp?L.exp+' পর্যন্ত':(L.status==='trial'?'Trial — '+L.left+' দিন বাকি':'')));
+  const old=document.getElementById('licBillModal'); if(old) old.remove();
+  const tr=(a,b)=>'<tr><td class="muted" style="width:170px;padding:7px 10px;border-bottom:1px solid var(--border)">'+a+'</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">'+b+'</td></tr>';
+  let h='<p class="muted" style="font-size:12.5px;margin:0 0 12px">'+esc(L.client||(S.settings&&S.settings.company)||'—')+' · '+LIC_PRODUCT_NAME+(st?' · '+esc(st):'')+'</p>';
+  if(pl) h+='<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px"><tbody>'+
+    tr('📄 চুক্তি','<b>'+esc(pl.bn)+'</b>'+(licRate(pl)?' — <b>'+esc(licRate(pl))+'</b>':'')+(L.pcs?' · '+L.pcs+' PC':'')+(pl.note?'<div class="muted" style="font-size:11.5px;margin-top:2px">'+esc(pl.note)+'</div>':''))+
+    tr('✅ Paid সময়',esc(licPaidRange()))+
+    (B.next?tr('🔔 পরের bill','<b>'+esc(B.next.label)+'</b> — '+esc(licMoney(B.next.amt))+' · দিতে হবে <b>'+esc(B.next.by)+'</b>'):'')+'</tbody></table>';
+  if(B.has){
+    h+='<div class="tw"><table class="t"><thead><tr><th>#</th><th>কোন সময়ের bill</th><th class="r">টাকা</th></tr></thead><tbody>'+
+      B.periods.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.label)+(pl.mon>1?'<div class="muted" style="font-size:11px">'+esc(x.from)+' → '+esc(x.to)+'</div>':'')+'</td><td class="r">'+esc(licMoney(x.amt))+'</td></tr>').join('')+
+      '<tr><td></td><td><b>মোট দিতে হবে</b></td><td class="r"><b style="font-size:15px">'+esc(licMoney(B.total))+'</b></td></tr></tbody></table></div>'+
+      (B.upcoming?'<div class="muted" style="margin-top:6px;font-size:12px">এই bill '+L.exp+' এর পরের সময়ের। মেয়াদ শেষের আগে pay করলে কাজ বন্ধ হবে না।</div>':'');
+  } else if(!B.next){
+    h+='<div class="note" style="padding:14px">'+(L.status==='trial'||L.status==='trialover'
+      ?'এখনো License key দেওয়া হয়নি — vendor এর সাথে যোগাযোগ করে key নিন।'
+      :(pl&&!pl.mon?'এই License এ মাসিক / বছরের bill নেই। Renew এর জন্য vendor এর সাথে যোগাযোগ করুন।':'এই License key তে bill এর তথ্য নেই — টাকা কত, vendor এর সাথে যোগাযোগ করে জেনে নিন।'))+'</div>';
+  }
+  h+='<div style="margin-top:12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px"><b style="font-size:13px">🏢 কাকে pay করবেন: '+esc(V.n||'—')+'</b>'+
+    (V.ph?'<div style="font-size:12.5px;margin-top:4px">📞 +'+esc(licVendorPhone(V))+'</div>':'')+
+    (V.pay?'<div style="font-size:12.5px;margin-top:6px;white-space:pre-wrap;line-height:1.6">'+esc(V.pay)+'</div>':'')+
+    '<div class="muted" style="margin-top:8px;font-size:12px">Pay করার পর vendor নতুন License key পাঠাবে — Admin সেটা বসালে সাথে সাথে আবার সব কাজ চালু হবে। কোনো ডাটা মোছে না।</div></div>';
+  if(_isAdmin()) h+='<label class="lbl" style="margin-top:12px">🔑 নতুন License Key</label><textarea class="inp" id="lic_key2" rows="2" style="font-family:monospace;font-size:11.5px" placeholder="AMAZ1-…"></textarea>';
+  const ov=document.createElement('div'); ov.className='overlay show'; ov.id='licBillModal'; ov.style.zIndex='400';
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div class="modal" style="max-width:620px"><div class="modal-h"><h3>💳 License Bill</h3><button class="x" onclick="document.getElementById(\'licBillModal\').remove()">✕</button></div>'+
+    '<div class="modal-b">'+h+'</div><div class="modal-f" style="flex-wrap:wrap">'+
+    '<button class="btn ghost" onclick="licBillCopy()">📋 Copy</button>'+
+    (V.ph?'<a class="btn ghost" style="text-decoration:none" href="'+esc(licVendorWa(V,waText))+'" target="_blank" rel="noopener">💬 Vendor কে WhatsApp</a>':'')+
+    (B.has?'<button class="btn ghost" onclick="printLicInvoice()">🖨️ Invoice</button>':'')+
+    (_isAdmin()?'<button class="btn gold" onclick="licActivate(\'lic_key2\')">✓ Activate</button>':'')+
+    '<button class="btn" onclick="document.getElementById(\'licBillModal\').remove()">Close</button></div></div>';
+  document.body.appendChild(ov);
+  _billShownAt=Date.now();
+}
+function printLicInvoice(){
+  const L=_lic, B=licBill(), V=B.vendor, pl=B.plan, st=S.settings||{};
+  if(!B.has){ toast('এখন কোনো bill নেই'); return; }
+  const today=licToday(), invNo='LIC-'+today.replace(/-/g,'').slice(0,6)+'-'+String((L.p&&L.p.k)||'0000').toUpperCase().slice(0,6);
+  const c='padding:5px 8px;border:0.7px solid #777;', th=c+'background:#eef1f6;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+  const body='<div style="font-family:\'Times New Roman\',serif;color:#000;font-size:12px;padding:6mm 4mm">'+
+    '<table style="width:100%;border-collapse:collapse;border-bottom:2px solid #000;margin-bottom:12px"><tr><td style="padding-bottom:8px">'+
+      '<div style="font-size:20px;font-weight:bold">'+esc(String(V.n||'AMAZ ERP Solution').toUpperCase())+'</div><div>Software &amp; ERP Solutions</div>'+(V.ph?'<div>Tel / WhatsApp: +'+esc(licVendorPhone(V))+'</div>':'')+'</td>'+
+      '<td style="text-align:right;vertical-align:top;padding-bottom:8px"><div style="font-size:18px;font-weight:bold;letter-spacing:2px">INVOICE</div><div>No: '+esc(invNo)+'</div><div>Date: '+esc(_dShort(today))+'</div></td></tr></table>'+
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:12px"><tbody>'+
+      '<tr><td style="'+c+'width:28%"><b>Bill To</b></td><td style="'+c+'"><b>'+esc(L.client||st.company||'—')+'</b>'+(st.address?'<br>'+esc(st.address):'')+'</td></tr>'+
+      '<tr><td style="'+c+'"><b>Product</b></td><td style="'+c+'">'+LIC_PRODUCT_NAME+' — software license'+(L.pcs?' ('+L.pcs+' PC'+(L.pcs>1?'s':'')+')':'')+'</td></tr>'+
+      '<tr><td style="'+c+'"><b>Plan</b></td><td style="'+c+'">'+esc(pl.en)+' — '+esc(licMoney(pl.amt))+' '+(pl.mon===1?'per month':pl.mon===12?'per year':'per '+pl.mon+' months')+'</td></tr>'+
+      '<tr><td style="'+c+'"><b>Current license</b></td><td style="'+c+'">Paid '+esc(licPaidRange())+' — '+(B.due?'expired on ':'valid until ')+esc(L.exp)+'</td></tr>'+
+      (pl.note?'<tr><td style="'+c+'"><b>Agreement note</b></td><td style="'+c+'">'+esc(pl.note)+'</td></tr>':'')+'</tbody></table>'+
+    '<div style="font-weight:bold;margin:6px 0 4px">BILLING DETAILS</div>'+
+    '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="'+th+'width:40px">#</th><th style="'+th+'text-align:left">Billing Period</th><th style="'+th+'">From</th><th style="'+th+'">To</th><th style="'+th+'text-align:right">Amount</th></tr></thead><tbody>'+
+      B.periods.map((x,i)=>'<tr><td style="'+c+'text-align:center">'+(i+1)+'</td><td style="'+c+'">'+esc(x.label)+'</td><td style="'+c+'text-align:center">'+esc(x.from)+'</td><td style="'+c+'text-align:center">'+esc(x.to)+'</td><td style="'+c+'text-align:right">'+esc(licMoney(x.amt))+'</td></tr>').join('')+
+      '<tr><td colspan="4" style="'+c+'font-weight:bold;text-align:right">TOTAL PAYABLE</td><td style="'+c+'text-align:right;font-weight:bold">'+esc(licMoney(B.total))+'</td></tr></tbody></table>'+
+    (V.pay?'<div style="font-weight:bold;margin:12px 0 4px">PAYMENT DETAILS</div><div style="white-space:pre-wrap;line-height:1.6">'+esc(V.pay)+'</div>':'')+
+    '<p style="font-size:10.5px;color:#444;margin-top:12px">After payment a new license key will be issued. Your data remains safe and unchanged.</p>'+
+    '<table style="width:100%;margin-top:60px"><tr><td style="width:50%"><div style="border-top:1px solid #000;width:70%;padding-top:4px;text-align:center">Received By</div></td>'+
+      '<td style="text-align:right"><div style="border-top:1px solid #000;width:70%;margin-left:auto;padding-top:4px;text-align:center">Authorised Signature</div></td></tr></table>'+
+    '<div style="text-align:center;font-size:10px;color:#555;margin-top:18px">'+esc(V.n||'AMAZ ERP Solution')+' · Computer generated invoice</div></div>';
+  window._printName='License Invoice '+invNo;
+  doPrint(body,'portrait',true);
+}
+setTimeout(()=>{ try{ licRefresh(); }catch(e){} },400);
+setInterval(()=>{ try{ if(CU) licRefresh(); }catch(e){} },6*3600*1000);
+
+/* ===================== v2.8 — Product Costing v19.10 থেকে: Recycle Bin, Login History, Update notice,
+   Year Summary, Login page Cloud status, Motion ===================== */
+/* ---------- RECYCLE BIN (৬০ দিন) ---------- */
+const BIN_DAYS=60, BIN_MAX=400;
+const BIN_SKIP=['users','deviceHeartbeats','deviceControls','licDevices','loginLog','cloudSnaps','settings','roles','attend','incSheet'];
+const BIN_PAGE={employees:'emp',leaves:'leave',leaveEncash:'leave',loans:'advance',increments:'increment',notices:'notice',bonus:'bonus',salary:'salary',ot:'ot',deposit:'deposit',holidays:'settings',transfers:'emp',discipline:'emp'};
+const BIN_NAME={employees:'কর্মচারী',leaves:'ছুটি',leaveEncash:'ছুটি নগদায়ন',loans:'Advance/Loan',increments:'Increment',notices:'নোটিশ',bonus:'Bonus Sheet',salary:'Salary Sheet',ot:'OT Sheet',deposit:'Deposit',holidays:'ছুটির দিন',transfers:'বদলি',discipline:'শৃঙ্খলা'};
+function binList(){ if(!Array.isArray(S.recycleBin)) S.recycleBin=[]; return S.recycleBin; }
+function _binLabel(col,id,d){
+  if(col==='salary'||col==='ot') return (typeof monthLabel==='function'?monthLabel(id):id);
+  const em=(d&&(d.empId!=null||d.eid!=null))?(S.employees||[]).find(e=>String(e.id)===String(d.empId!=null?d.empId:d.eid)):null;
+  const t=(d&&(d.name||d.title||d.label||d.type||d.month||d.date))||('#'+id);
+  return (em?em.name+' — ':'')+t;
+}
+function _binCapture(col,id){
+  try{
+    if(BIN_SKIP.includes(col)||id==null||!S[col]) return;
+    let d=null;
+    if(Array.isArray(S[col])) d=S[col].find(x=>x&&String(x.id)===String(id));
+    else if(typeof S[col]==='object') d=S[col][id];
+    if(!d) return;
+    const L=binList(), now=Date.now();
+    if(L.some(b=>b.c===col&&String(b.id)===String(id)&&now-Date.parse(b.at)<5000)) return;
+    let dd=JSON.parse(JSON.stringify(d)), big=false;
+    // ছবি/স্ক্যান করা কাগজ (বড় base64) Bin এ রাখলে browser এর জায়গা ভরে যায় — সেগুলো বাদ দিয়ে রাখি
+    if(JSON.stringify(dd).length>150000){ const strip=o=>{ if(o&&typeof o==='object') Object.keys(o).forEach(k=>{ const v=o[k]; if(typeof v==='string'&&v.length>20000){ o[k]=''; big=true; } else strip(v); }); }; strip(dd); }
+    L.push({bid:'b'+now.toString(36)+Math.random().toString(36).slice(2,6),c:col,id:id,at:new Date().toISOString(),by:(CU&&(CU.name||CU.username))||'',lbl:_binLabel(col,id,d)+(big?' (ছবি/ফাইল ছাড়া)':''),d:dd});
+    binPrune(true);
+  }catch(e){}
+}
+function binPrune(quiet){
+  const cut=Date.now()-BIN_DAYS*864e5, L=binList();
+  const keep=L.filter(b=>Date.parse(b.at)>cut).slice(-BIN_MAX);
+  if(keep.length!==L.length){ S.recycleBin=keep; if(!quiet) save(); }
+}
+const _md0=_markDeleted;
+_markDeleted=function(col,ids){ (Array.isArray(ids)?ids:[ids]).forEach(id=>_binCapture(col,id)); return _md0(col,ids); };
+function _binCanRestore(b){ return _isAdmin()||canDo(BIN_PAGE[b.c]||'emp','add'); }
+function binRestore(bid){
+  const L=binList(), b=L.find(x=>x.bid===bid); if(!b) return;
+  if(!_binCanRestore(b)){ denyToast(); return; }
+  if(Array.isArray(S[b.c])||!S[b.c]&&b.c!=='salary'&&b.c!=='ot'&&b.c!=='deposit'){
+    if(!Array.isArray(S[b.c])) S[b.c]=[];
+    if(S[b.c].some(x=>x&&String(x.id)===String(b.id))){ toast('এই ID এর record এখন আছে — ফেরত আনা গেল না'); return; }
+    const r=JSON.parse(JSON.stringify(b.d)); r._t=Date.now(); S[b.c].push(r);
+  } else {
+    if(!S[b.c]) S[b.c]={};
+    if(S[b.c][b.id]){ toast('এই মাস/ID এর sheet এখন আছে — আগে সেটা মুছুন'); return; }
+    S[b.c][b.id]=JSON.parse(JSON.stringify(b.d));
+  }
+  if(S._del&&S._del[b.c]) delete S._del[b.c][b.c+':'+b.id];
+  S.recycleBin=L.filter(x=>x.bid!==bid);
+  try{ auditLog('Restore',(BIN_NAME[b.c]||b.c)+': '+b.lbl); }catch(e){}
+  save(); toast('♻️ ফেরত আনা হয়েছে — '+b.lbl); openRecycleBin();
+}
+function binPurge(bid){
+  if(!_isAdmin()){ denyToast(); return; }
+  if(!confirm('চিরতরে মুছবেন? আর ফেরত আনা যাবে না।')) return;
+  S.recycleBin=binList().filter(x=>x.bid!==bid); save(); openRecycleBin();
+}
+function binEmpty(){
+  if(!_isAdmin()){ denyToast(); return; }
+  if(!binList().length||!confirm('Recycle Bin এর সব কিছু চিরতরে মুছবেন?')) return;
+  S.recycleBin=[]; save(); openRecycleBin();
+}
+function openRecycleBin(){
+  binPrune();
+  const f=window._binF||'', L=binList().filter(b=>!f||b.c===f).slice().reverse();
+  const cols=[...new Set(binList().map(b=>b.c))];
+  const ov=$('#overlay');
+  ov.innerHTML=`<div class="modal" style="max-width:860px"><div class="modal-h"><h3>🗑️ Recycle Bin <small class="muted" style="font-weight:400">— মোছা জিনিস ${BIN_DAYS} দিন থাকে</small></h3><button class="x" onclick="closeM()">×</button></div>
+  <div class="modal-b">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn sm ${!f?'gold':'ghost'}" onclick="window._binF='';openRecycleBin()">সব (${binList().length})</button>
+      ${cols.map(c=>`<button class="btn sm ${f===c?'gold':'ghost'}" onclick="window._binF='${c}';openRecycleBin()">${esc(BIN_NAME[c]||c)} (${binList().filter(b=>b.c===c).length})</button>`).join('')}
+    </div>
+    ${L.length?`<div class="tw"><table class="t"><thead><tr><th>কী</th><th>ধরন</th><th>কে মুছেছে</th><th>কখন</th><th>বাকি</th><th></th></tr></thead><tbody>
+    ${L.map(b=>{const left=BIN_DAYS-Math.floor((Date.now()-Date.parse(b.at))/864e5);
+      return `<tr><td><b>${esc(b.lbl)}</b></td><td>${esc(BIN_NAME[b.c]||b.c)}</td><td>${esc(b.by||'—')}</td><td>${esc(_ymd(b.at))} ${esc(new Date(b.at).toTimeString().slice(0,5))}</td><td>${left} দিন</td>
+      <td class="r" style="white-space:nowrap">${_binCanRestore(b)?`<button class="btn sm gold" onclick="binRestore('${b.bid}')">♻️ ফেরত</button>`:''} ${_isAdmin()?`<button class="btn sm ghost" onclick="binPurge('${b.bid}')">✕</button>`:''}</td></tr>`;}).join('')}
+    </tbody></table></div>`:`<div class="note" style="padding:22px;text-align:center">🗑️ Recycle Bin খালি</div>`}
+    <div class="muted" style="font-size:11.5px;margin-top:8px">কর্মচারী, ছুটি, Loan, Increment, নোটিশ, Bonus/Salary/OT sheet, Deposit, ছুটির দিন, বদলি, শৃঙ্খলা — মুছলে এখানে আসে। ফেরত আনলে Cloud Sync এ সব PC তে ফিরে যায়।</div>
+  </div>
+  <div class="modal-f">${_isAdmin()&&binList().length?'<button class="btn ghost" onclick="binEmpty()">✕ সব চিরতরে মুছুন</button>':''}<button class="btn" onclick="closeM()">Close</button></div></div>`;
+  ov.classList.add('show');
+}
+/* ---------- LOGIN HISTORY ---------- */
+const LOGLOG_DAYS=90, LOGLOG_MAX=1500;
+function _loginLogAdd(ok,usr,uname){
+  try{
+    if(!Array.isArray(S.loginLog)) S.loginLog=[];
+    S.loginLog.push({id:'lg'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),at:new Date().toISOString(),ok:!!ok,
+      uid:usr?usr.id:null,u:usr?(usr.username||''):String(uname||'').slice(0,40),n:usr?(usr.name||usr.username||''):'',dev:_devName(),did:_devId()});
+    S.loginLog=_loginLogPrune(S.loginLog); save();
+  }catch(e){}
+}
+function _loginLogPrune(a){
+  const cut=new Date(Date.now()-LOGLOG_DAYS*864e5).toISOString();
+  return (a||[]).filter(x=>x&&String(x.at||'')>cut).sort((p,q)=>String(p.at).localeCompare(String(q.at))).slice(-LOGLOG_MAX);
+}
+const _cm0=_cloudMerge;
+_cloudMerge=function(local,cloud,pref){ const o=_cm0(local,cloud,pref); try{ if(Array.isArray(o.loginLog)) o.loginLog=_loginLogPrune(o.loginLog); if(Array.isArray(o.recycleBin)){ const cut=Date.now()-BIN_DAYS*864e5; o.recycleBin=o.recycleBin.filter(b=>Date.parse(b.at)>cut).slice(-BIN_MAX);} }catch(e){} return o; };
+function loginHistoryHTML(){
+  const L=(S.loginLog||[]), c30=new Date(Date.now()-30*864e5).toISOString();
+  const users=(S.users||[]);
+  const rows=users.map(u=>{
+    const mine=L.filter(x=>x.uid===u.id||(x.u&&u.username&&x.u.toLowerCase()===String(u.username).toLowerCase()));
+    const okL=mine.filter(x=>x.ok), last=okL[okL.length-1];
+    return {u,last,n30:okL.filter(x=>x.at>c30).length,f30:mine.filter(x=>!x.ok&&x.at>c30).length,devs:new Set(okL.map(x=>x.did)).size};
+  }).sort((a,b)=>String((b.last||{}).at||'').localeCompare(String((a.last||{}).at||'')));
+  const unk=L.filter(x=>!x.ok&&x.at>c30&&!users.some(u=>String(u.username||'').toLowerCase()===String(x.u||'').toLowerCase()));
+  const t=x=>x?esc(_ymd(x.at))+' '+esc(new Date(x.at).toTimeString().slice(0,5)):'—';
+  return `<div class="panel" id="loginHist" style="margin-top:18px"><div class="panel-h"><h2>🕑 Login History <small>শেষ ${LOGLOG_DAYS} দিন · সব PC (Cloud Sync)</small></h2></div>
+  <div class="tw"><table class="t"><thead><tr><th>User</th><th>শেষ Login</th><th>কোন PC</th><th class="r">৩০ দিনে Login</th><th class="r">ভুল চেষ্টা (৩০ দিন)</th><th class="r">PC সংখ্যা</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr><td><b>${esc(r.u.name||r.u.username)}</b> <span class="muted">@${esc(r.u.username||'')}</span>${r.u.active===false?' <span class="chip">inactive</span>':''}</td><td>${t(r.last)}</td><td>${esc((r.last&&r.last.dev)||'—')}</td><td class="r">${r.n30}</td><td class="r" style="${r.f30?'color:var(--red);font-weight:700':''}">${r.f30||'—'}</td><td class="r">${r.devs||'—'}</td></tr>`).join('')}
+  </tbody></table></div>
+  ${unk.length?`<div class="note" style="margin:10px 14px;color:var(--red)">⚠️ অচেনা username দিয়ে ${unk.length} বার ভুল চেষ্টা: ${esc([...new Set(unk.map(x=>x.u))].slice(0,8).join(', '))}</div>`:''}
+  <details style="padding:10px 16px"><summary style="cursor:pointer;font-size:12.5px;font-weight:600">সাম্প্রতিক ৫০টা</summary>
+  <div class="tw" style="margin-top:8px"><table class="t"><thead><tr><th>সময়</th><th>User</th><th>PC</th><th>ফল</th></tr></thead><tbody>
+  ${L.slice(-50).reverse().map(x=>`<tr><td>${t(x)}</td><td>${esc(x.n||x.u||'')}</td><td>${esc(x.dev||'')}</td><td>${x.ok?'<span style="color:var(--green,#16a34a)">✓ সফল</span>':'<span style="color:var(--red)">✕ ভুল</span>'}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">এখনো কিছু নেই</td></tr>'}
+  </tbody></table></div></details></div>`;
+}
+const _ru0=renderUsers;
+renderUsers=function(){ const r=_ru0.apply(this,arguments); try{ if(_isAdmin()&&$('#view')) $('#view').insertAdjacentHTML('beforeend',loginHistoryHTML()); }catch(e){} return r; };
+/* ---------- UPDATE NOTICE (GitHub এর version.json) ---------- */
+let UPD_SEEN='';
+function verCmp(a,b){ const x=String(a).split('.').map(Number), y=String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(x.length,y.length);i++){ const d=(x[i]||0)-(y[i]||0); if(d) return d>0?1:-1; } return 0; }
+function updCheck(){
+  if(!/^https?:$/.test(location.protocol)||!window.fetch) return;
+  fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+    if(!j||!j.version||verCmp(j.version,APP_VER)<=0) return;
+    let skip=''; try{ skip=localStorage.getItem('amaz_hr_upd_skip')||''; }catch(e){}
+    if(skip===String(j.version)&&UPD_SEEN===String(j.version)) return;
+    UPD_SEEN=String(j.version); updShow(j);
+  }).catch(()=>{});
+}
+function updShow(j){
+  let b=document.getElementById('updBar');
+  if(!b){ b=document.createElement('div'); b.id='updBar'; b.className='no-print'; document.body.appendChild(b); }
+  b.innerHTML='<span>🆕 নতুন ভার্সন <b>v'+esc(j.version)+'</b> এসেছে'+(j.notes?' — <span class="upd-note">'+esc(j.notes)+'</span>':'')+'</span>'+
+    '<button class="btn sm gold" onclick="updNow()">এখনই আপডেট</button><button class="btn sm ghost" onclick="updLater(\''+esc(j.version)+'\')">পরে</button>';
+  b.classList.add('on');
+}
+function updLater(v){ try{ localStorage.setItem('amaz_hr_upd_skip',v); }catch(e){} const b=document.getElementById('updBar'); if(b) b.classList.remove('on'); }
+function updNow(){
+  try{ save(); flushPersist(); }catch(e){}
+  const r=()=>location.reload();
+  try{ if(navigator.serviceWorker){ navigator.serviceWorker.getRegistration().then(g=>{ if(g&&g.update) g.update().then(r,r); else r(); },r); return; } }catch(e){}
+  r();
+}
+setTimeout(updCheck,8000); setInterval(updCheck,30*60*1000);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') updCheck(); });
+/* ---------- LOGIN PAGE — Cloud status + এখনই আনুন ---------- */
+function _syncMark(){ try{ localStorage.setItem('amaz_hr_last_sync',new Date().toISOString()); }catch(e){} }
+const _cpl0=_cloudPullInner; _cloudPullInner=async function(){ const ok=await _cpl0.apply(this,arguments); if(ok) _syncMark(); return ok; };
+const _cps0=_cloudPushInner; _cloudPushInner=async function(){ const ok=await _cps0.apply(this,arguments); if(ok) _syncMark(); return ok; };
+function _agoTxt(iso){ if(!iso) return 'কখনো না'; const m=Math.round((Date.now()-Date.parse(iso))/60000);
+  return m<1?'এইমাত্র':m<60?m+' মিনিট আগে':m<1440?Math.round(m/60)+' ঘণ্টা আগে':Math.round(m/1440)+' দিন আগে'; }
+function lgCloudStat(msg){
+  const el=document.getElementById('lgCloudStat'); if(!el) return;
+  const c=_cloudCfg();
+  if(!_cloudCfgValid(c)){ el.innerHTML=''; el.style.display='none'; return; }
+  let last=''; try{ last=localStorage.getItem('amaz_hr_last_sync')||''; }catch(e){}
+  const on=navigator.onLine!==false;
+  el.style.display='flex';
+  el.innerHTML='<span>'+(on?'🟢':'🔴')+' Cloud ('+(c.provider==='supabase'?'Supabase':'Google')+') · শেষ sync: <b>'+_agoTxt(last)+'</b>'+(msg?'<br><span style="font-size:11px">'+msg+'</span>':'')+'</span>'+
+    (on?'<button type="button" onclick="lgCloudPullNow()">⟳ এখনই আনুন</button>':'');
+}
+async function lgCloudPullNow(){
+  const b=document.querySelector('#lgCloudStat button'); if(b){ b.disabled=true; b.textContent='⏳ আনা হচ্ছে…'; }
+  let ok=false; try{ ok=await cloudPull(false); }catch(e){}
+  lgCloudStat(ok?'✅ নতুন ডাটা এসেছে — এখন Login করুন':'⚠️ আনা গেল না — ইন্টারনেট / Cloud দেখুন');
+}
+const _sl0=showLogin; showLogin=function(){ const r=_sl0.apply(this,arguments); try{ lgCloudStat(); }catch(e){} return r; };
+window.addEventListener('online',()=>{ try{ lgCloudStat(); }catch(e){} }); window.addEventListener('offline',()=>{ try{ lgCloudStat(); }catch(e){} });
+setTimeout(()=>{ try{ lgCloudStat(); }catch(e){} },600);
+/* ---------- MOTION — পাতা বদলালে হালকা fade, KPI সংখ্যা গুনে ওঠে ---------- */
+function _reduceMotion(){ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+function countUp(root){
+  if(_reduceMotion()) return;
+  (root||document).querySelectorAll('.kv,.cu-num').forEach(el=>{
+    if(el.dataset.cu) return; el.dataset.cu='1';
+    const txt=el.textContent, m=/^([^\d\-]*)([\d,]+(?:\.\d+)?)(.*)$/.exec(txt.trim()); if(!m) return;
+    const target=parseFloat(m[2].replace(/,/g,'')); if(!(target>0)||target<5) return;
+    const dec=(m[2].split('.')[1]||'').length, t0=performance.now(), dur=700;
+    const step=now=>{ const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3);
+      if(k>=1){ el.textContent=txt; return; }
+      el.textContent=m[1]+(dec?(target*e).toFixed(dec):fmtn(Math.round(target*e)))+m[3]; requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+const _go0=go;
+go=function(v){
+  const prev=cur; const r=_go0.apply(this,arguments);
+  try{ const vw=$('#view'); if(vw&&!_reduceMotion()&&prev!==cur){ vw.classList.remove('vfade'); void vw.offsetWidth; vw.classList.add('vfade'); }
+    if(prev!==cur) countUp(vw); }catch(e){}
+  return r;
+};
+/* ---------- YEAR SUMMARY REPORT ---------- */
+function _yearData(y){
+  const out=[];
+  for(let mi=1;mi<=12;mi++){
+    const mk=y+'-'+String(mi).padStart(2,'0'), sh=(S.salary||{})[mk], os=(S.ot||{})[mk];
+    let hc=0,gross=0,net=0,ded=0,ot=0,bonus=0;
+    (S.employees||[]).forEach(e=>{
+      const row=sh&&sh.rows?(sh.rows[e.id]||sh.rows[e.name]):null;
+      if(row){ try{ const c=salCalc(e,row,num(sh.monthDays)||30,mk); hc++; gross+=num(c.gross); net+=num(c.net); ded+=num(c.advance)+num(c.tds)+num(c.deposit); }catch(x){} }
+      const orow=os&&os.rows?(os.rows[e.id]||os.rows[e.name]):null;
+      if(orow){ try{ ot+=num(otCalc(e,orow,mk).total); }catch(x){} }
+    });
+    (S.bonus||[]).filter(b=>b&&b.month===mk).forEach(b=>{ Object.values(b.rows||{}).forEach(v=>{ bonus+=num(v&&typeof v==='object'?(v.amount||v.amt||0):v); }); });
+    const joins=(S.employees||[]).filter(e=>String(e.join||'').slice(0,7)===mk).length;
+    const seps=(S.employees||[]).filter(e=>String(e.lastDay||'').slice(0,7)===mk).length;
+    out.push({mk,mi,has:!!sh,hc,gross,net,ded,ot,bonus,total:net+ot+bonus,joins,seps});
+  }
+  return out;
+}
+function _yearChartSVG(D,print){
+  const W=760,H=220,pl=58,pb=26,pt=12,max=Math.max(1,...D.map(d=>d.total)), bw=(W-pl-10)/12;
+  const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(v))); return Math.ceil(v/p)*p; }, top=nice(max);
+  const col=print?'#1e3a5f':'var(--gold)', ink=print?'#333':'var(--muted)', grid=print?'#ddd':'var(--border)';
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;font-family:inherit" role="img" aria-label="Monthly payroll cost">';
+  for(let i=0;i<=4;i++){ const yv=top*i/4, yy=H-pb-(H-pb-pt)*i/4;
+    s+='<line x1="'+pl+'" x2="'+(W-6)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+grid+'" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10" fill="'+ink+'">'+(yv>=1e5?(yv/1e5).toFixed(yv%1e5?1:0)+'L':fmtn(yv))+'</text>'; }
+  D.forEach((d,i)=>{ const h=(H-pb-pt)*d.total/top, x=pl+i*bw+bw*0.2, w=bw*0.6, yy=H-pb-h;
+    if(h>0) s+='<path d="M'+x+','+(H-pb)+'V'+(yy+3)+'q0,-3 3,-3h'+(w-6)+'q3,0 3,3V'+(H-pb)+'Z" fill="'+col+'"><title>'+M[i]+': '+fmtn(Math.round(d.total))+' · '+d.hc+' জন</title></path>';
+    s+='<text x="'+(x+w/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10.5" fill="'+ink+'">'+M[i]+'</text>'; });
+  return s+'</svg>';
+}
+function renderYearSummary(){
+  const ys=[...new Set(Object.keys(S.salary||{}).map(k=>k.slice(0,4)))].sort().reverse();
+  const y=window._rptYear||ys[0]||String(new Date().getFullYear());
+  const D=_yearData(y), T=D.reduce((a,d)=>{['gross','net','ded','ot','bonus','total','joins','seps'].forEach(k=>a[k]+=d[k]);return a;},{gross:0,net:0,ded:0,ot:0,bonus:0,total:0,joins:0,seps:0});
+  const hcs=D.filter(d=>d.has).map(d=>d.hc), avgHc=hcs.length?Math.round(hcs.reduce((a,b)=>a+b,0)/hcs.length):0;
+  $('#topActions').innerHTML=`<button class="btn sm ghost" onclick="_rptView='menu';renderReports()">← Reports</button>
+    <select class="inp" style="width:110px" onchange="window._rptYear=this.value;renderYearSummary()">${(ys.length?ys:[y]).map(v=>`<option${v===y?' selected':''}>${v}</option>`).join('')}</select>
+    <button class="btn sm ghost" onclick="printYearSummary('${y}')">🖨 Print / PDF</button>`;
+  $('#view').innerHTML=`<div class="cards" style="margin-bottom:14px">${kpiCards([
+    {l:'বছরের মোট খরচ',v:'৳'+fmtn(Math.round(T.total)),c:'cb',s:'Net + OT + Bonus · '+y,i:'chart'},
+    {l:'গড় কর্মী',v:String(avgHc),c:'cg',s:hcs.length+' মাসের Salary Sheet',i:'emp'},
+    {l:'OT',v:'৳'+fmtn(Math.round(T.ot)),c:'ca',s:'সারা বছর',i:'trending'},
+    {l:'যোগদান / চলে যাওয়া',v:T.joins+' / '+T.seps,c:'cr',s:y,i:'cal'}])}</div>
+  <div class="panel" style="margin-bottom:14px"><div class="panel-h"><h2>📊 মাসভিত্তিক মোট খরচ <small>${y}</small></h2></div><div style="padding:12px 16px">${_yearChartSVG(D)}</div></div>
+  <div class="panel"><div class="tw"><table class="t"><thead><tr><th>মাস</th><th class="r">কর্মী</th><th class="r">Gross</th><th class="r">কর্তন</th><th class="r">Net</th><th class="r">OT</th><th class="r">Bonus</th><th class="r">মোট খরচ</th><th class="r">যোগদান</th><th class="r">চলে গেছে</th></tr></thead><tbody>
+  ${D.map(d=>`<tr${d.has?'':' class="muted"'}><td><b>${monthLabel(d.mk)}</b></td><td class="r">${d.has?d.hc:'—'}</td><td class="r">${d.has?fmtn(Math.round(d.gross)):'—'}</td><td class="r">${d.ded?fmtn(Math.round(d.ded)):'—'}</td><td class="r">${d.has?fmtn(Math.round(d.net)):'—'}</td><td class="r">${d.ot?fmtn(Math.round(d.ot)):'—'}</td><td class="r">${d.bonus?fmtn(Math.round(d.bonus)):'—'}</td><td class="r"><b>${d.total?fmtn(Math.round(d.total)):'—'}</b></td><td class="r">${d.joins||'—'}</td><td class="r">${d.seps||'—'}</td></tr>`).join('')}
+  <tr><td><b>মোট</b></td><td class="r">গড় ${avgHc}</td><td class="r"><b>${fmtn(Math.round(T.gross))}</b></td><td class="r"><b>${fmtn(Math.round(T.ded))}</b></td><td class="r"><b>${fmtn(Math.round(T.net))}</b></td><td class="r"><b>${fmtn(Math.round(T.ot))}</b></td><td class="r"><b>${fmtn(Math.round(T.bonus))}</b></td><td class="r"><b>${fmtn(Math.round(T.total))}</b></td><td class="r"><b>${T.joins}</b></td><td class="r"><b>${T.seps}</b></td></tr>
+  </tbody></table></div></div>`;
+  countUp($('#view'));
+}
+function printYearSummary(y){
+  const D=_yearData(y), T=D.reduce((a,d)=>{['gross','net','ded','ot','bonus','total','joins','seps'].forEach(k=>a[k]+=d[k]);return a;},{gross:0,net:0,ded:0,ot:0,bonus:0,total:0,joins:0,seps:0});
+  const hcs=D.filter(d=>d.has).map(d=>d.hc), avgHc=hcs.length?Math.round(hcs.reduce((a,b)=>a+b,0)/hcs.length):0;
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const st=S.settings||{}, c='padding:4px 7px;border:0.7px solid #666;', th=c+'background:#1e3a5f;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+  const n=v=>v?fmtn(Math.round(v)):'—';
+  const body='<div style="font-family:\'Times New Roman\',serif;color:#000;font-size:12px">'+
+    '<div style="text-align:center;border-bottom:2px solid #1e3a5f;padding-bottom:6px;margin-bottom:10px"><div style="font-size:19px;font-weight:bold">'+esc(st.company||'')+'</div>'+(st.address?'<div>'+esc(st.address)+'</div>':'')+
+    '<div style="font-size:15px;font-weight:bold;margin-top:6px;letter-spacing:1px">YEARLY PAYROLL SUMMARY — '+esc(y)+'</div></div>'+
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:10px"><tr>'+
+      [['Total Cost (Net+OT+Bonus)','BDT '+fmtn(Math.round(T.total))],['Average Headcount',String(avgHc)],['Total OT','BDT '+fmtn(Math.round(T.ot))],['Joined / Separated',T.joins+' / '+T.seps]]
+      .map(k=>'<td style="'+c+'width:25%"><div style="font-size:10.5px;color:#444">'+k[0]+'</div><div style="font-size:14px;font-weight:bold">'+k[1]+'</div></td>').join('')+'</tr></table>'+
+    '<div style="margin-bottom:8px">'+_yearChartSVG(D,true)+'</div>'+
+    '<table style="width:100%;border-collapse:collapse"><thead><tr>'+['Month','Headcount','Gross','Deductions','Net','OT','Bonus','Total Cost','Joined','Separated'].map((h,i)=>'<th style="'+th+(i?'text-align:right':'text-align:left')+'">'+h+'</th>').join('')+'</tr></thead><tbody>'+
+    D.map(d=>'<tr><td style="'+c+'">'+M[d.mi-1]+'</td><td style="'+c+'text-align:right">'+(d.has?d.hc:'—')+'</td><td style="'+c+'text-align:right">'+n(d.gross)+'</td><td style="'+c+'text-align:right">'+n(d.ded)+'</td><td style="'+c+'text-align:right">'+n(d.net)+'</td><td style="'+c+'text-align:right">'+n(d.ot)+'</td><td style="'+c+'text-align:right">'+n(d.bonus)+'</td><td style="'+c+'text-align:right;font-weight:bold">'+n(d.total)+'</td><td style="'+c+'text-align:right">'+(d.joins||'—')+'</td><td style="'+c+'text-align:right">'+(d.seps||'—')+'</td></tr>').join('')+
+    '<tr style="font-weight:bold"><td style="'+c+'">TOTAL</td><td style="'+c+'text-align:right">Avg '+avgHc+'</td><td style="'+c+'text-align:right">'+n(T.gross)+'</td><td style="'+c+'text-align:right">'+n(T.ded)+'</td><td style="'+c+'text-align:right">'+n(T.net)+'</td><td style="'+c+'text-align:right">'+n(T.ot)+'</td><td style="'+c+'text-align:right">'+n(T.bonus)+'</td><td style="'+c+'text-align:right">'+n(T.total)+'</td><td style="'+c+'text-align:right">'+T.joins+'</td><td style="'+c+'text-align:right">'+T.seps+'</td></tr></tbody></table>'+
+    '<div style="font-size:10px;color:#555;margin-top:8px">Amounts in BDT. Total Cost = Net Salary + Overtime + Bonus. Generated on '+new Date().toLocaleDateString('en-GB')+'.</div></div>';
+  window._printName='Yearly Payroll Summary '+y;
+  doPrint(body,'landscape');
+}
+
 /* ===== v2.1 features ===== */
 /* ===================== v2.1 — Login পাতায় Cloud Setup (Visa Renewal এর মতো) =====================
    নতুন device এ প্রথমবার: Login এর আগেই Cloud (Apps Script / Supabase) এর তথ্য বসিয়ে
@@ -2864,7 +3429,7 @@ function backupHtml(){
   const lr=(S.loans||[]).map(l=>{const e=(S.employees||[]).find(x=>x.id===l.empId);const paid=(l.paid||[]).reduce((s,p)=>s+num(p&&p.amount!=null?p.amount:p),0);
     return `<tr><td>${esc(e?e.name:'#'+l.empId)}</td><td>${l.date?fmtDateP(l.date):''}</td><td class="r">${fmtn(l.amount)}</td><td class="r">${fmtn(paid)}</td><td class="r">${fmtn(num(l.amount)-paid)}</td><td>${esc(l.status||'')}</td></tr>`;}).join('');
   const now=new Date();
-  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${co} — HR Readable Backup ${now.toISOString().slice(0,10)}</title>
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${co} — HR Readable Backup ${_ymd(now)}</title>
 <style>body{font-family:"Times New Roman",serif;margin:24px;color:#111}h1{margin:0;font-size:22px}h2{font-size:16px;margin:26px 0 8px;border-bottom:2px solid #1d4ed8;padding-bottom:4px}
 .sub{color:#555;font-size:12px;margin:4px 0 16px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left}th{background:#e8eefc}
 .r{text-align:right}tr.off td{color:#888}.foot{margin-top:24px;font-size:11px;color:#666;border-top:1px solid #ccc;padding-top:6px}@media print{body{margin:0}h2{break-after:avoid}}</style></head><body>
@@ -2874,7 +3439,7 @@ function backupHtml(){
 <h2>Advance / Loan (${(S.loans||[]).length})</h2><table><thead><tr><th>Employee</th><th>Date</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Due</th><th>Status</th></tr></thead><tbody>${lr||'<tr><td colspan="6">No loans</td></tr>'}</tbody></table>
 <div class="foot">Powered by AMAZ ERP SOLUTION</div></body></html>`;
   const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='AMAZ_HR_Readable_'+now.toISOString().slice(0,10)+'.html';a.click();
+  a.href=URL.createObjectURL(blob);a.download='AMAZ_HR_Readable_'+_ymd(now)+'.html';a.click();
   auditLog('Backup','Readable HTML backup downloaded');save();toast('📄 HTML Backup ডাউনলোড হয়েছে');
 }
 
@@ -2905,6 +3470,26 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'2.8.1',d:'08 Nov 2026',t:'Bug fix — তারিখ, অনুমতি, Copy',items:[
+    'তারিখের বড় ভুল ঠিক: সফটওয়্যার কিছু জায়গায় UTC সময় ধরত, তাই বাংলাদেশে — Attendance এর ▶ পরের দিন বোতাম কাজ করত না, ◀ আগের দিন ২ দিন পিছাত; রাত ১২টা–সকাল ৬টায় "আজ" আগের দিন দেখাত; Analytics এর শেষ ১২ মাস এক মাস পিছানো; মাসের শেষ দিন ১ দিন কম; Probation শেষ, নোটিশের জবাবের শেষ দিন, Maternity ছুটির শেষ দিন ১ দিন কম — সব ৭৬ জায়গায় ঠিক',
+    'অনুমতির ফাঁক বন্ধ: বদলি, Confirmation, Final Settlement, Deposit Paid/Edit, Loan কিস্তি, Bonus edit, Increment, Biometric apply, ছুটি Approve ইত্যাদি — Role এ অনুমতি না থাকলে আর করা যাবে না; License মেয়াদ শেষে (READ-ONLY) এগুলোও বন্ধ',
+    'সংখ্যা পড়া: "15,000", "৳ 15,000" বা বাংলা অঙ্ক "১৫০০০" — Import বা হাতে লিখলে এখন ঠিক মান ধরে (আগে 15 বা 0 হতো)',
+    'Copy বোতাম: Browser অনুমতি না দিলেও এখন copy হয় (আগে error)',
+    'Login পাতার "⟳ এখনই আনুন" বোতাম Cloud Setup এর একই নামের function এর সাথে মিলে যাচ্ছিল — আলাদা করা হয়েছে',
+    'Recycle Bin এ বড় ছবি/স্ক্যান বাদ দিয়ে রাখা হয় — browser এর জায়গা ভরে যাবে না']},
+  {v:'2.8',d:'08 Nov 2026',t:'Recycle Bin, Login History, Update notice, Year Summary',items:[
+    '🗑️ Recycle Bin — কর্মচারী, ছুটি, Loan, Increment, নোটিশ, Salary/OT/Bonus sheet, Deposit ইত্যাদি মুছলে ৬০ দিন থাকে; ফেরত আনা যায় (Settings ▸ Recycle Bin)',
+    '🕑 Login History — User পেজের নিচে: কে কখন কোন PC থেকে ঢুকেছে, ৩০ দিনে কতবার, ভুল password এর চেষ্টা (সব PC, Cloud Sync দিয়ে)',
+    '🆕 Update notice — GitHub এ নতুন version (version.json) দিলে খোলা অ্যাপের উপরে নোটিশ, এক চাপে আপডেট',
+    '📅 Year Summary report — ১২ মাসের খরচ, কর্মী সংখ্যা, যোগদান/চলে যাওয়া; চার্ট সহ English Print/PDF',
+    '☁️ Login পাতায় Cloud এর অবস্থা ও শেষ sync — Login এর আগেই ⟳ এখনই আনুন',
+    '✨ Motion — পাতা বদলালে হালকা fade, KPI সংখ্যা গুনে ওঠে (Reduce motion চালু থাকলে বন্ধ)']},
+  {v:'2.7',d:'08 Nov 2026',t:'License (Product Costing এর মতো)',items:[
+    'License Key — AMAZ1 key, AMAZ License Generator দিয়ে বানানো (AMAZ HR এর নিজস্ব key — অন্য সফটওয়্যারের key এখানে চলবে না)',
+    'Key ছাড়া ৩০ দিন Trial; মেয়াদ শেষে ৭ দিন Grace, তারপর READ-ONLY — দেখা, Print, PDF, Excel, Backup চলে; কোনো ডাটা মোছে না',
+    'PC সীমা — Cloud Sync দিয়ে PC গোনা; Admin পুরনো PC সরাতে পারেন; ৪৫ দিন না খোলা PC নিজেই বাদ',
+    'Bill — মাসিক/৩ মাস/৬ মাস/বছর চুক্তি; মেয়াদ শেষের ১৫ দিন আগে থেকে Dashboard এ Bill, Vendor কে WhatsApp, English Invoice Print',
+    'Settings এর উপরে 🔑 License প্যানেল']},
   {v:'2.6.5',d:'02 Nov 2026',t:'Salary/OT Print আরও কম জায়গায়',items:[
     'স্বাক্ষর সবসময় শেষ পাতার একদম নিচে — কর্মী বেশি হলে সফটওয়্যার নিজেই প্রতিটা সারি মেপে পাতা ভাগ করে; প্রতি পাতায় শিরোনাম, "Page 1/2" ও "Continued on next page"',
     'সারাংশ বাক্স আবার টেবিলের ঠিক নিচে লেগে থাকে — মাঝে ফাঁকা জায়গা নেই',
@@ -3217,7 +3802,7 @@ function computeInsights(){
       }
     }
   }
-  const nowK=new Date().toISOString().slice(0,7);
+  const nowK=_ymd(new Date()).slice(0,7);
   const joinedNow=(S.employees||[]).filter(e=>e.join&&e.join.slice(0,7)===nowK).length;
   const leftNow=(S.employees||[]).filter(e=>e.status==='inactive'&&e.lastDay&&e.lastDay.slice(0,7)===nowK).length;
   if(leftNow>=2){insights.push({icon:'⚠️',tone:'danger',text:`চলতি মাসে ${leftNow} জন কর্মচারী চাকরি ছেড়েছেন — turnover একটু বেশি, কারণ যাচাই করা ভালো।`});}
@@ -3246,7 +3831,7 @@ function insightsPanel(){
 function weekGlancePanel(){
   const today=new Date();today.setHours(0,0,0,0);
   const weekEnd=new Date(today);weekEnd.setDate(weekEnd.getDate()+6);
-  const fmt2=d=>d.toISOString().slice(0,10);
+  const fmt2=d=>_ymd(d);
   const todayStr=fmt2(today),weekEndStr=fmt2(weekEnd);
   // work anniversaries this week (by month-day, active employees, at least 1 year completed)
   const annivs=[];
@@ -3337,7 +3922,7 @@ function dashboardSnapshot(){
 // which can fail without warning in some mobile browsers/webviews). The person
 // can long-press / right-click the image to save, or use the explicit download link.
 function _showSnapshotViewer(dataUrl){
-  const ts=new Date().toISOString().slice(0,10);
+  const ts=_ymd(new Date());
   const ov=document.createElement('div');
   ov.className='snapViewerOverlay';
   ov.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow:auto';
@@ -3354,6 +3939,7 @@ function _showSnapshotViewer(dataUrl){
 }
 
 function renderDash(){
+  window._licBan=(typeof licBannerHTML==='function')?licBannerHTML():'';
   $('#topActions').innerHTML=`<button class="btn gold" onclick="dashboardSnapshot()" title="Dashboard Snapshot">📸</button>`;
   const act=activeEmps(), m=byCat(act);
   const totGross=act.reduce((s,e)=>s+currentGross(e),0);
@@ -3365,7 +3951,7 @@ function renderDash(){
   const ok=Object.keys(S.ot).sort().pop();
   if(ok){const oh=S.ot[ok];const noOT=['Factory Admin','Directors & GM'];act.forEach(e=>{if(noOT.includes(e.category))return;if(oh.rows[e.id])otTot+=otCalc(e,oh.rows[e.id],ok).net;});}
 
-  $('#view').innerHTML=`
+  $("#view").innerHTML=(window._licBan||"")+`
   <div id="dashSnapshotArea">
   <div id="dashSnapHeader" style="display:none;padding:6px 4px 16px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:14px">
     <div style="font-size:20px;font-weight:800;color:var(--gold)">${esc(S.settings.company)}</div>
@@ -3896,7 +4482,7 @@ function printSettlement(id){
     <div class="ps-head"><div class="ps-co">${esc(s.company)}</div><div class="ps-addr">${esc(s.address)}</div><div class="ps-title">FINAL SETTLEMENT VOUCHER</div></div>
     <table class="ps-info"><tr><td><b>Name:</b> ${esc(e.name)}</td><td><b>Designation:</b> ${esc(e.designation||'-')}</td></tr>
       <tr><td><b>Joining:</b> ${fmtDateP(e.join)}</td><td><b>Tenure:</b> ${tenureStrEn(e)}</td></tr>
-      <tr><td><b>Date:</b> ${fmtDateP(new Date().toISOString().slice(0,10))}</td><td><b>Category:</b> ${esc(e.category)}</td></tr></table>
+      <tr><td><b>Date:</b> ${fmtDateP(_ymd(new Date()))}</td><td><b>Category:</b> ${esc(e.category)}</td></tr></table>
     <table class="ps-t" style="width:100%;margin-top:6px"><thead><tr><th>Particulars</th><th class="r">Amount (৳)</th></tr></thead><tbody>
       ${line('Last Month Salary',v.sal)}${line('Deposit Refund',v.dep)}${line('Other / Gratuity',v.earn)}
       ${line('Less: Advance/Loan',v.adv,true)}${line('Less: Other Deduction',v.ded,true)}
@@ -4101,7 +4687,7 @@ function scReasonL(bn){const r=SC_REASONS.find(x=>x[0]===bn);return r?(window._L
 
 function terminationModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const REASONS=['পদত্যাগ (Resignation)','চুক্তির মেয়াদ শেষ (Contract Expired)','অসদাচরণ (Misconduct)','কর্তব্যে গুরুতর অবহেলা (Gross Negligence)','কোম্পানির নীতি লঙ্ঘন (Policy Violation)','পদ বিলুপ্তি (Position Abolished)','ছাঁটাই (Retrenchment)','অন্যান্য (Others)'];
   $('#overlay').innerHTML=`<div class="modal" style="max-width:460px"><div class="modal-h"><h3>📄 Termination Letter</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
@@ -4138,7 +4724,7 @@ function printTermination(id){
   const s=S.settings||{};const co=s.company||'Amin Square (BD) Ltd.';const addr=s.address||'37/2, Pritom Zaman Tower, 9th Floor, Purana Paltan, Dhaka-1000';
   const signs=s.signs||[];const _hr1=findSign(signs,/hr|admin/i,signs[0]);const hrName=_hr1[1]||'HR Officer';const hrRole=_hr1[0]||'HR & Admin';
   const agmName=(sign2()[1]||'');const agmRole=(sign2()[0]||'GM / AGM');
-  const letterDate=$('#tm_date').value||new Date().toISOString().slice(0,10);
+  const letterDate=$('#tm_date').value||_ymd(new Date());
   const effectiveDate=$('#tm_effective').value||letterDate;
   const reason=$('#tm_reason').value;const detail=($('#tm_detail').value||'').trim();
   const noticeDays=num($('#tm_notice').value)||30;const refNo=($('#tm_ref').value||'').trim();
@@ -4208,7 +4794,7 @@ function printTermination(id){
 
 function promotionModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const gross=num(currentGross(e));
   $('#overlay').innerHTML=`<div class="modal" style="max-width:460px"><div class="modal-h"><h3>📄 Promotion Letter</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
@@ -4248,7 +4834,7 @@ function printPromotion(id){
   const s=S.settings||{};const co=s.company||'Amin Square (BD) Ltd.';const addr=s.address||'37/2, Pritom Zaman Tower, 9th Floor, Purana Paltan, Dhaka-1000';
   const signs=s.signs||[];const _hr2=findSign(signs,/hr|admin/i,signs[0]);const hrName=_hr2[1]||'HR Officer';const hrRole=_hr2[0]||'HR & Admin';
   const agmName=(sign2()[1]||'');const agmRole=(sign2()[0]||'GM / AGM');
-  const letterDate=$('#pm_date').value||new Date().toISOString().slice(0,10);
+  const letterDate=$('#pm_date').value||_ymd(new Date());
   const effectiveDate=$('#pm_effective').value||letterDate;
   const oldDesig=($('#pm_olddesig').value||'').trim();const newDesig=($('#pm_newdesig').value||'').trim();
   const oldSal=num($('#pm_oldsal').value);const newSal=num($('#pm_newsal').value);
@@ -4327,7 +4913,7 @@ function printPromotion(id){
 
 function showCauseModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const REASONS=SC_REASONS.map(r=>r[0]);
   $('#overlay').innerHTML=`<div class="modal" style="max-width:460px"><div class="modal-h"><h3>📄 Show Cause Notice</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
@@ -4394,7 +4980,7 @@ function printShowCause(id){
   // Reply deadline
   const deadline=new Date(noticeDate);
   deadline.setDate(deadline.getDate()+replyDays);
-  const deadlineStr=fmtDateP(deadline.toISOString().slice(0,10));
+  const deadlineStr=fmtDateP(_ymd(deadline));
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
@@ -4500,7 +5086,7 @@ function printShowCause(id){
 
 function apptLetterModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   $('#overlay').innerHTML=`<div class="modal" style="max-width:440px"><div class="modal-h"><h3>📄 Appointment Letter</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
       <div class="note" style="padding:8px 12px;margin-bottom:14px"><b>${esc(e.name)}</b> — ${esc(e.designation||e.category)}</div>
@@ -4550,7 +5136,7 @@ function printApptLetter(id){
   const authRole=_hrSign3[0]||'HR & Admin';
   const mdName=(sign2()[1]||'');
   const mdRole=(sign2()[0]||'GM / AGM');
-  const letterDate=$('#al_date').value||new Date().toISOString().slice(0,10);
+  const letterDate=$('#al_date').value||_ymd(new Date());
   const joinDate=$('#al_join').value||e.join||letterDate;
   const probMonths=num($('#al_prob').value)||3;
   const hours=($('#al_hours').value||'9:00 AM – 6:00 PM').trim();
@@ -4564,7 +5150,7 @@ function printApptLetter(id){
   const split=splitOf({...e,gross});
   const probEnd=new Date(joinDate);
   probEnd.setMonth(probEnd.getMonth()+probMonths);
-  const probEndStr=fmtDateP(probEnd.toISOString().slice(0,10));
+  const probEndStr=fmtDateP(_ymd(probEnd));
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
@@ -4686,7 +5272,7 @@ function printApptLetter(id){
 
 function expCertModal(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   $('#overlay').innerHTML=`<div class="modal" style="max-width:400px"><div class="modal-h"><h3>📄 Experience Certificate</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
       <div class="note" style="padding:8px 12px;margin-bottom:14px"><b>${esc(e.name)}</b> — ${esc(e.designation||e.category)}</div>
@@ -4714,7 +5300,7 @@ function expCertModal(id){
 
 function printExpCert(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
-  const certDateVal=($('#ec_date')||{value:""}).value||new Date().toISOString().slice(0,10);
+  const certDateVal=($('#ec_date')||{value:""}).value||_ymd(new Date());
   const withLH=((document.querySelector('input[name="ec_lh"]:checked')||{value:undefined}).value||'with')==='with';
   const s=S.settings||{};
   const co=s.company||'Amin Square (BD) Ltd.';
@@ -4820,7 +5406,7 @@ function salCertModal(id){
     const sh=S.salary[mk];
     return sh&&sh.rows&&(sh.rows[id]||sh.rows[e.name]);
   }).sort().reverse();
-  const today=new Date().toISOString().slice(0,7);
+  const today=_ymd(new Date()).slice(0,7);
   const opts=months.length?months.map(mk=>`<option value="${mk}">${monthLabel(mk)}</option>`).join(''):`<option value="${today}">${monthLabel(today)}</option>`;
   $('#overlay').innerHTML=`<div class="modal" style="max-width:400px"><div class="modal-h"><h3>📄 Salary Certificate</h3><button class="x" onclick="closeM()">×</button></div>
     <div class="modal-b">
@@ -4830,7 +5416,7 @@ function salCertModal(id){
       <label class="lbl" style="margin-top:12px">উদ্দেশ্য / Purpose (ঐচ্ছিক)</label>
       <input class="inp" id="sc_purpose" placeholder="যেমন: Bank Loan, Visa, Personal...">
       <label class="lbl" style="margin-top:12px">Certificate তারিখ</label>
-      <input class="inp" type="date" id="sc_date" value="${new Date().toISOString().slice(0,10)}">
+      <input class="inp" type="date" id="sc_date" value="${_ymd(new Date())}">
       <div class="note" style="margin-top:14px;padding:10px 12px">
         <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--gold)">🖨 Print Mode:</div>
         <div style="display:flex;gap:10px">
@@ -4855,7 +5441,7 @@ function printSalCert(id){
   const e=S.employees.find(x=>x.id===id);if(!e)return;
   const mk=$('#sc_month').value;
   const purpose=($('#sc_purpose').value||'').trim();
-  const certDate=$('#sc_date').value||new Date().toISOString().slice(0,10);
+  const certDate=$('#sc_date').value||_ymd(new Date());
   const withLH=((document.querySelector('input[name="sc_lh"]:checked')||{value:undefined}).value||'with')==='with';
   const s=S.settings||{};
   const co=s.company||'Amin Square (BD) Ltd.';
@@ -5639,7 +6225,7 @@ function saveEmp(id){
   if(id){
     const _prev=S.employees.find(x=>x.id===id);
     // v2.2 — Section/পদবী/Category বদলালে নিজে থেকেই Transfer ইতিহাসে রেকর্ড
-    if(_prev&&((_prev.section||'')!==(o.section||'')||(_prev.designation||'')!==(o.designation||'')||(_prev.category||'')!==(o.category||''))){try{trAdd({empId:id,date:new Date().toISOString().slice(0,10),from:{section:_prev.section||'',designation:_prev.designation||'',category:_prev.category||''},to:{section:o.section||'',designation:o.designation||'',category:o.category||''},note:'Employee ফর্ম থেকে বদল'});}catch(_e){}}
+    if(_prev&&((_prev.section||'')!==(o.section||'')||(_prev.designation||'')!==(o.designation||'')||(_prev.category||'')!==(o.category||''))){try{trAdd({empId:id,date:_ymd(new Date()),from:{section:_prev.section||'',designation:_prev.designation||'',category:_prev.category||''},to:{section:o.section||'',designation:o.designation||'',category:o.category||''},note:'Employee ফর্ম থেকে বদল'});}catch(_e){}}
     const _oldGross=num(_prev&&_prev.gross), _newGross=num(o.gross);
     Object.assign(_prev,o);auditLog('Employee Update','Updated: '+o.name);
     // Once an employee has an approved increment, their displayed salary comes from that increment
@@ -6015,7 +6601,7 @@ function exportEmployees(){
     const g=num(currentGross(e));const sp=splitOf({...e,gross:g});
     rows.push([e.id,e.name,e.designation||'',e.category||'',e.section||'',genderOf(e)||'',e.join||'',g,sp.basic,sp.house,sp.conv,sp.med,e.payMode||'',e.bank||'',e.branch||'',e.routing||'',e.acc||'',e.nid||'',e.mobile||'',e.email||'',e.blood||'',e.status||'active',e.lastDay||'',e.lastReason||'']);
   });
-  dlCSV(rows,'Employees_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Employees_'+_ymd(new Date())+'.csv');
   auditLog('Export','Employee List exported');
 }
 
@@ -6031,7 +6617,7 @@ function exportSalaryAll(){
       rows.push([mk,e.id,e.name,e.category||'',calc.gross,num(r.attend)||md,absent,calc.advance||0,calc.tds||0,calc.deposit||0,calc.arrears||0,num(r.holiday)||0,calc.net]);
     });
   });
-  dlCSV(rows,'Salary_All_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Salary_All_'+_ymd(new Date())+'.csv');
   auditLog('Export','Salary data exported');
 }
 
@@ -6045,7 +6631,7 @@ function exportOTAll(){
       rows.push([mk,e.id,e.name,e.category||'',num(currentGross(e)),calc.hrs,fmtn(calc.rate),calc.total]);
     });
   });
-  dlCSV(rows,'OT_All_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'OT_All_'+_ymd(new Date())+'.csv');
   auditLog('Export','OT data exported');
 }
 
@@ -6055,7 +6641,7 @@ function exportLeaves(){
     const e=S.employees.find(x=>x.id===l.empId)||{};
     rows.push([l.id,l.empId,e.name||'',e.category||'',l.type||'',l.from||'',l.to||'',l.days||0,l.reason||'',l.status||'',l.appliedAt||'',l.approvedAt||'']);
   });
-  dlCSV(rows,'Leaves_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Leaves_'+_ymd(new Date())+'.csv');
   auditLog('Export','Leave records exported');
 }
 
@@ -6066,7 +6652,7 @@ function exportLoans(){
     const paid=(l.paid||[]).reduce((s,p)=>s+num(p.amount),0);
     rows.push([l.id,l.empId,e.name||'',e.category||'',l.amount||0,l.date||'',l.installments||0,paid,num(l.amount)-paid,l.note||'']);
   });
-  dlCSV(rows,'Loans_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Loans_'+_ymd(new Date())+'.csv');
   auditLog('Export','Loan records exported');
 }
 
@@ -6076,7 +6662,7 @@ function exportIncrements(){
     const e=S.employees.find(x=>x.id===i.empId)||{};
     rows.push([i.id,i.empId,e.name||'',e.category||'',i.effMonth||'',i.oldGross||0,i.newGross||0,i.amount||0,i.pct||0,i.perf||0,i.promo||0,i.remarks||'',i.date||'']);
   });
-  dlCSV(rows,'Increments_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Increments_'+_ymd(new Date())+'.csv');
   auditLog('Export','Increment history exported');
 }
 
@@ -6088,7 +6674,7 @@ function exportBonus(){
       rows.push([b.title||'',b.date||'',e.id,e.name,e.category||'',b.method||'festival',amt]);
     });
   });
-  dlCSV(rows,'Bonus_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Bonus_'+_ymd(new Date())+'.csv');
   auditLog('Export','Bonus data exported');
 }
 
@@ -6104,7 +6690,7 @@ function ensureOT(k){if(!S.ot[k])S.ot[k]={rows:{}};return S.ot[k];}
    Overtime eligibility: workers earn OT past the standard shift, while admin/driver/security/
    caretaker style roles don't — for them the same surplus is reported as "extra hours" only, so the
    time is still visible without implying money is owed. */
-let attMonth=(new Date()).toISOString().slice(0,7);
+let attMonth=_ymd((new Date())).slice(0,7);
 function ensureAtt(k){if(!S.attend)S.attend={};if(!S.attend[k])S.attend[k]={rows:{}};if(!S.attend[k].rows)S.attend[k].rows={};return S.attend[k];}
 function attDaysIn(k){return new Date(num(k.slice(0,4)),num(k.slice(5,7)),0).getDate();}
 function attShiftHours(){return num((S.settings&&S.settings.attShiftHours))||8;}
@@ -6196,7 +6782,7 @@ function attEmpTotals(e,sh,days){
   }
   return {present,worked,surplus,noOT:attIsNoOT(e)};
 }
-let attDay=(new Date()).toISOString().slice(0,10);
+let attDay=_ymd((new Date()));
 let attView='day'; // 'day' = fast daily entry, 'month' = full grid for review
 /* Daily entry is the default because it's what actually happens day to day, and because the full
    month grid renders ~31 x 2 x headcount inputs at once — enough to make the page feel like it's
@@ -6254,7 +6840,7 @@ function attSetDay(v){
 function attShiftDay(delta){
   const d=new Date(attDay+'T00:00');
   d.setDate(d.getDate()+delta);
-  attSetDay(d.toISOString().slice(0,10));
+  attSetDay(_ymd(d));
 }
 function drawAttDay(){
   const sh=ensureAtt(attMonth), day=num(attDay.slice(8,10)), list=activeEmps();
@@ -6424,7 +7010,7 @@ function exportAttendCSV(){
    computed hours — the detail the monthly summary can't show. */
 function attDailyModal(){
   const days=attDaysIn(attMonth);
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const def=today.slice(0,7)===attMonth?today:(attMonth+'-01');
   $('#overlay').innerHTML=`<div class="modal" style="max-width:420px">
     <div class="modal-h"><h3>📅 Daily Attendance Report</h3><button class="x" onclick="closeM()">×</button></div>
@@ -6714,7 +7300,7 @@ function renderBonus(){
 }
 function newBonus(){
   const yr=new Date().getFullYear();
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const FESTIVALS=[
     {name:'Eid-ul-Fitr Bonus '+yr,    mult:1,  date:today},
     {name:'Eid-ul-Adha Bonus '+yr,    mult:1,  date:today},
@@ -6848,7 +7434,7 @@ function nbCreate(){
   const festName=_NB_FESTIVALS[i].name;
   let title=isCustom?($('#nb_customName').value||'').trim():festName+' '+yr;
   if(!title){toast('Bonus-এর নাম দিন');return;}
-  const date=$('#nb_date').value||new Date().toISOString().slice(0,10);
+  const date=$('#nb_date').value||_ymd(new Date());
   const method=$('#nb_method').value;
   const multiplier=num($('#nb_mult').value)||1;
   const fixed=num($('#nb_fixed').value)||0;
@@ -6940,7 +7526,7 @@ function bonusSaveEdit(){
 /* ============ SETTINGS ============ */
 function renderSettings(){
   $('#topActions').innerHTML='';const s=S.settings;
-  $('#view').innerHTML=`
+  $('#view').innerHTML=(typeof licensePanelHTML==='function'?licensePanelHTML():'')+(typeof binList==='function'?`<div class="panel" style="margin-bottom:20px"><div class="panel-h"><h2 style="flex:1">🗑️ Recycle Bin <small>মোছা জিনিস ${BIN_DAYS} দিন থাকে — ফেরত আনা যায়</small></h2><button class="btn sm gold" onclick="openRecycleBin()">খুলুন (${binList().length})</button></div></div>`:'')+`
   <div class="settingsGrid">
 ${_canStg('stg_company')?`  <div class="panel"><div class="panel-h"><h2>Company Info</h2></div><div style="padding:18px">
     <div class="grid2">
@@ -7151,7 +7737,7 @@ function doPost(e){
     return json_({error:err.message});
   }
 }</pre>
-        <button class="btn xs ghost" onclick="navigator.clipboard.writeText(document.getElementById('gs_script_code').textContent).then(()=>toast('Copied!'))">📋 Copy Code</button>
+        <button class="btn xs ghost" onclick="_copyText(document.getElementById('gs_script_code').textContent,'Copied!')">📋 Copy Code</button>
       </div>
       <div class="faint" style="font-size:11px;margin-top:8px">⚠️ আগে যদি পুরোনো Google Apps Script setup করে থাকেন, সেটা এই নতুন কোড দিয়ে replace করে আবার Deploy করতে হবে (পুরোনো কোডে version-tracking নেই, তাই নতুন Push/Pull কাজ করবে না)।</div>
     </details>
@@ -7225,7 +7811,7 @@ function holAdd(){if(!_canStg('stg_holiday')){denyToast();return;}const d=$('#ho
   if(!d){toast('তারিখ দিন');return;}if(!n){toast('ছুটির নাম দিন');return;}
   ensureHolidays().push({id:'hol_'+Date.now(),date:d,name:n});save();
   $('#hol_date').value='';$('#hol_name').value='';drawHolidays();toast('ছুটি যোগ হয়েছে');}
-function holDel(id){if(!_canStg('stg_holiday')){denyToast();return;}S.holidays=ensureHolidays().filter(h=>h.id!==id);save();drawHolidays();toast('মুছে ফেলা হয়েছে');}
+function holDel(id){if(!_canStg('stg_holiday')){denyToast();return;}_binCapture('holidays',id);S.holidays=ensureHolidays().filter(h=>h.id!==id);save();drawHolidays();toast('মুছে ফেলা হয়েছে');}
 function holidaysInMonth(mk){return ensureHolidays().filter(h=>(h.date||'').slice(0,7)===mk);}
 /* ═══════════ CLOUD SYNC (multi-provider: Google Apps Script + Supabase, record-level merge) ═══════════ */
 function _cloudCfg(){ return (S.settings&&S.settings.cloud)||{}; }
@@ -7381,7 +7967,7 @@ async function cloudTest(){
   }catch(e){_cloudSetStatus('❌ সংযোগ ব্যর্থ: '+e.message,'#dc2626');}
 }
 // ── record-level merge engine ──
-const _SYNC_ID_COLS=['employees','increments','loans','leaves','holidays','bonus','users','notices','deviceHeartbeats','deviceControls','leaveEncash','transfers','discipline'];
+const _SYNC_ID_COLS=['employees','increments','loans','leaves','holidays','bonus','users','notices','deviceHeartbeats','deviceControls','leaveEncash','transfers','discipline','licDevices','loginLog'];
 const _SYNC_KEY_COLS=['salary','ot','deposit','incSheet','settings','roles','cloudSnaps','attend'];
 const _SYNC_SCALAR_COLS=['sessionTimeout'];
 function _syncEnsureIds(){
@@ -8119,7 +8705,7 @@ function saveSmsGw(){
   save();toast('SMS Gateway সেভ হয়েছে');renderSettings();
 }
 function backup(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);a.download='AMAZ_HR_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Backup ডাউনলোড হয়েছে');}
+  a.href=URL.createObjectURL(b);a.download='AMAZ_HR_backup_'+_ymd(new Date())+'.json';a.click();toast('Backup ডাউনলোড হয়েছে');}
 function restore(ev){const f=ev.target.files[0];if(!f)return;
   if(!confirm('Restore করলে বর্তমান সব data মুছে গিয়ে ব্যাকআপ ফাইলের data বসবে। আগে বর্তমান data-র Backup নিয়েছেন তো?\n\nনিশ্চিত থাকলে OK চাপুন।')){ev.target.value='';return;}
   const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d||!d.employees){toast('এটা সঠিক AMAZ HR backup ফাইল নয়');return;}S=d;save();toast('Restore সম্পন্ন');go('dash');}catch(e){toast('ফাইল পড়া যায়নি');}};rd.readAsText(f);}
@@ -8831,7 +9417,7 @@ function _pdfName(html){
   let t=window._printName||'';
   if(!t){const m=String(html).match(/class="(?:nvTt|xtitle)"[^>]*>([^<]{3,80})</)||String(html).match(/<h[12][^>]*>([^<]{3,80})</)||String(html).match(/<title>([^<]{3,80})</);t=m?m[1]:'AMAZ_HR_Print';}
   t=t.replace(/&[a-z]+;/gi,' ').replace(/[^A-Za-z0-9\u0980-\u09FF'\- ]+/g,' ').trim().replace(/\s+/g,'_');
-  return (t||'AMAZ_HR_Print')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  return (t||'AMAZ_HR_Print')+'_'+_ymd(new Date())+'.pdf';
 }
 const PDF_LIB='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 const PDF_MM={legal:[215.9,355.6],a4:[210,297],letter:[215.9,279.4]};
@@ -9083,13 +9669,14 @@ function canWrite(){const r=curRole();return r?(!!r.write||!!r.admin):false;}
 // the Add/Edit/Delete checkboxes had no real effect until this was wired in.)
 function canDo(page,action){
   const r=curRole();if(!r)return false;
+  if(action!=='view'&&typeof licReadOnly==='function'&&licReadOnly())return false;
   if(r.admin)return true;
   if(r.perms&&r.perms[page])return r.perms[page].includes(action);
   return !!r.write; // page never customized in Role Editor — fall back to the role's overall write flag
 }
-function canApprove(){const r=curRole();return !!(r&&(r.admin||r.approver));}
-function denyApproveToast(){toast('⛔ Approve/Reject করার অনুমতি শুধু AGM/MD role-এর — Admin-কে বলুন Role Editor-এ দিতে');}
-function denyToast(){toast('⛔ এই কাজের জন্য আপনার অনুমতি নেই — Admin-কে বলুন Role-এ Add/Edit/Delete দিতে');}
+function canApprove(){if(typeof licReadOnly==='function'&&licReadOnly())return false;const r=curRole();return !!(r&&(r.admin||r.approver));}
+function denyApproveToast(){if(typeof licReadOnly==='function'&&licReadOnly())return licBlockedNotice();toast('⛔ Approve/Reject করার অনুমতি শুধু AGM/MD role-এর — Admin-কে বলুন Role Editor-এ দিতে');}
+function denyToast(){if(typeof licReadOnly==='function'&&licReadOnly())return licBlockedNotice();toast('⛔ এই কাজের জন্য আপনার অনুমতি নেই — Admin-কে বলুন Role-এ Add/Edit/Delete দিতে');}
 function canSeePage(v){
   const r=curRole();if(!r)return false;
   if(r.admin)return true;
@@ -9247,7 +9834,7 @@ function essRenderLeave(e){
     ${rows}`;
 }
 function essLeaveForm(){
-  const e=essEmp();if(!e)return;const today=new Date().toISOString().slice(0,10);
+  const e=essEmp();if(!e)return;const today=_ymd(new Date());
   $('#essBody').innerHTML=`
     <div style="background:var(--panel2,#111a2e);border-radius:12px;padding:16px">
       <label class="lgLbl" style="color:var(--muted,#8a93a6);font-size:12px">ছুটির ধরন</label>
@@ -9273,7 +9860,7 @@ function essLeaveSubmit(){
   const days=daysBetween(from,to);if(days<=0){toast('শেষ তারিখ শুরুর পরে হতে হবে');return;}
   const reason=($('#ess_lv_reason').value||'').trim();
   if(!reason){toast('কারণ লিখুন');return;}
-  const lv={id:'lv_'+Date.now(),empId:e.id,type:$('#ess_lv_type').value,from,to,days,reason,status:'pending',appliedAt:new Date().toISOString().slice(0,10),appliedVia:'ess'};
+  const lv={id:'lv_'+Date.now(),empId:e.id,type:$('#ess_lv_type').value,from,to,days,reason,status:'pending',appliedAt:_ymd(new Date()),appliedVia:'ess'};
   ensureLeaves().push(lv);
   auditLog('Leave Apply (ESS)','Employee #'+e.id+' ('+e.name+'), '+lv.type+', '+lv.days+' days');
   save();toast('ছুটির আবেদন জমা হয়েছে — HR Approve করলে জানানো হবে');
@@ -9306,7 +9893,7 @@ function essRenderAdvance(e){
     ${rows}`;
 }
 function essLoanForm(){
-  const e=essEmp();if(!e)return;const today=new Date().toISOString().slice(0,10);
+  const e=essEmp();if(!e)return;const today=_ymd(new Date());
   $('#essBody').innerHTML=`
     <div style="background:var(--panel2,#111a2e);border-radius:12px;padding:16px">
       <label class="lgLbl" style="color:var(--muted,#8a93a6);font-size:12px">পরিমাণ (৳)</label>
@@ -9328,7 +9915,7 @@ function essLoanSubmit(){
   if(amount<=0){toast('পরিমাণ দিন');return;}
   const installments=num($('#ess_ln_inst').value)||1;
   const note=($('#ess_ln_note').value||'').trim();
-  const l={id:'ln_'+Date.now(),empId:e.id,amount,date:new Date().toISOString().slice(0,10),installments,note,paid:[],status:'pending',appliedVia:'ess'};
+  const l={id:'ln_'+Date.now(),empId:e.id,amount,date:_ymd(new Date()),installments,note,paid:[],status:'pending',appliedVia:'ess'};
   ensureLoans().push(l);
   auditLog('Advance Apply (ESS)','Employee #'+e.id+' ('+e.name+'), ৳'+fmtn(amount));
   save();toast('আবেদন জমা হয়েছে — HR Approve করলে জানানো হবে');
@@ -9370,12 +9957,12 @@ function doLogin(){
   const lk=_lgLockedMsg(); if(lk){$('#lg_err').textContent=lk;return;}
   const u=($('#lg_user').value||'').trim(), p=$('#lg_pass').value||'';
   const usr=(S.users||[]).find(x=>(x.username||'').toLowerCase()===u.toLowerCase()&&x.active!==false&&_pwOk(x,p));
-  if(!usr){auditLog('Login Failed',u);$('#lg_err').textContent='ভুল username বা password (অথবা account inactive) '+_lgFail();return;}
+  if(!usr){auditLog('Login Failed',u);try{_loginLogAdd(false,null,u);}catch(e){}$('#lg_err').textContent='ভুল username বা password (অথবা account inactive) '+_lgFail();return;}
   _lgOk();
   // পুরনো plain password থাকলে এখনই hash করে ফেলি; পুরনো device থেকে sync হয়ে plain আবার এলে সেটাও মুছি
   if(!usr.passHash){_pwSet(usr,p);save();}else if(usr.password!=null){delete usr.password;save();}
   auditLog('Login',usr.username);
-  CU=usr;
+  CU=usr;try{_loginLogAdd(true,usr);}catch(e){}
   const remember=!!($('#lg_remember')&&$('#lg_remember').checked);
   try{
     if(remember){localStorage.setItem('amaz_hr_cu_remember',usr.id);sessionStorage.removeItem('amaz_hr_cu');}
@@ -9383,7 +9970,7 @@ function doLogin(){
   }catch(e){}
   $('#lg_err').textContent='';$('#lg_pass').value='';
   applyRole();refreshUserChip();
-  hideLogin();go('dash');
+  hideLogin();go('dash');try{licRefresh();}catch(e){}
   _apprKnown=null;setTimeout(()=>_apprCheck(true),1500);
   setTimeout(cloudStartAuto,1000);setTimeout(_startAutoBackup,1100);
 }
@@ -9737,7 +10324,7 @@ function exportAuditLog(){
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='AuditLog_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download='AuditLog_'+_ymd(new Date())+'.csv';
   a.click();
   toast('✓ Audit Log exported');
 }
@@ -10139,7 +10726,7 @@ function depClearAll(){
 }
 function depToggle(id){const d=S.deposit[id];if(!d)return;d.status=d.status==='paid'?'pending':'paid';d._t=Date.now();save();renderDeposit();}
 function depEdit(id){const d=S.deposit[id];if(!d)return;const v=prompt('Deposit পরিমাণ:',d.total);if(v==null)return;d.total=num(v);d._t=Date.now();save();renderDeposit();toast('আপডেট হয়েছে');}
-function depDel(id){if(!canDo('deposit','delete')){denyToast();return;}if(!confirm('এই Deposit এন্ট্রি মুছবেন?'))return;delete S.deposit[id];_markDeleted('deposit',id);save();renderDeposit();toast('মুছে ফেলা হয়েছে');}
+function depDel(id){if(!canDo('deposit','delete')){denyToast();return;}if(!confirm('এই Deposit এন্ট্রি মুছবেন?'))return;_markDeleted('deposit',id);delete S.deposit[id];save();renderDeposit();toast('মুছে ফেলা হয়েছে');}
 function depAddModal(){
   const have=new Set(Object.keys(S.deposit||{}).map(String));
   const opts=S.employees.filter(e=>!have.has(String(e.id))).sort((a,b)=>((a.status==='inactive')-(b.status==='inactive'))||a.name.localeCompare(b.name));
@@ -10257,7 +10844,7 @@ function empActiveDue(id){return empLoans(id).filter(l=>loanIsActive(l)&&loanBal
 function loanApprove(id){
   if(!canDo('advance','edit')){denyToast();return;}
   const l=ensureLoans().find(x=>x.id===id);if(!l)return;
-  l.status='approved';l.approvedBy=CU?CU.name:'—';l.approvedAt=new Date().toISOString().slice(0,10);
+  l.status='approved';l.approvedBy=CU?CU.name:'—';l.approvedAt=_ymd(new Date());
   auditLog('Advance Approved','Loan #'+id+' — '+fmtn(l.amount));
   save();renderAdvance();toast('✓ Approve করা হয়েছে');
 }
@@ -10265,7 +10852,7 @@ function loanReject(id){
   if(!canDo('advance','edit')){denyToast();return;}
   const l=ensureLoans().find(x=>x.id===id);if(!l)return;
   if(!confirm('এই Advance/Loan আবেদন Reject করবেন?'))return;
-  l.status='rejected';l.approvedBy=CU?CU.name:'—';l.approvedAt=new Date().toISOString().slice(0,10);
+  l.status='rejected';l.approvedBy=CU?CU.name:'—';l.approvedAt=_ymd(new Date());
   auditLog('Advance Rejected','Loan #'+id+' — '+fmtn(l.amount));
   save();renderAdvance();toast('আবেদন Reject করা হয়েছে');
 }
@@ -10318,7 +10905,7 @@ function loanModal(){
       <select class="inp" id="l_emp">${act.map(e=>`<option value="${e.id}">${esc(e.name)} — ${esc(e.designation||e.category)}</option>`).join('')}</select>
       <div class="grid2" style="margin-top:12px">
         <div><label class="lbl">Advance/Loan পরিমাণ (৳) *</label><input class="inp" type="number" id="l_amt" placeholder="0"></div>
-        <div><label class="lbl">তারিখ</label><input class="inp" type="date" id="l_date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div><label class="lbl">তারিখ</label><input class="inp" type="date" id="l_date" value="${_ymd(new Date())}"></div>
       </div>
       <div class="grid2" style="margin-top:12px">
         <div><label class="lbl">কত কিস্তিতে কাটবে?</label><input class="inp" type="number" id="l_inst" value="1" min="1"></div>
@@ -10333,7 +10920,7 @@ function loanSave(){
   if(!canDo('advance','add')){denyToast();return;}
   const empId=+$('#l_emp').value;const amount=num($('#l_amt').value);
   if(amount<=0){toast('পরিমাণ দিন');return;}
-  ensureLoans().push({id:'ln_'+Date.now(),empId,amount,date:$('#l_date').value||new Date().toISOString().slice(0,10),installments:num($('#l_inst').value)||1,note:($('#l_note').value||'').trim(),paid:[],status:'approved',appliedVia:'staff'});
+  ensureLoans().push({id:'ln_'+Date.now(),empId,amount,date:$('#l_date').value||_ymd(new Date()),installments:num($('#l_inst').value)||1,note:($('#l_note').value||'').trim(),paid:[],status:'approved',appliedVia:'staff'});
   save();closeM();renderAdvance();toast('Advance/Loan যোগ হয়েছে');
 }
 function loanPayModal(id){
@@ -10432,7 +11019,7 @@ function svgGroupedBar(data,opts){
     <span style="color:var(--teal);font-weight:700">● যোগদান</span><span style="color:var(--red);font-weight:700">● প্রস্থান</span>
   </div>`;
 }
-function last12Months(){const arr=[];const d=new Date();d.setDate(1);for(let i=11;i>=0;i--){const dd=new Date(d.getFullYear(),d.getMonth()-i,1);arr.push(dd.toISOString().slice(0,7));}return arr;}
+function last12Months(){const arr=[];const d=new Date();d.setDate(1);for(let i=11;i>=0;i--){const dd=new Date(d.getFullYear(),d.getMonth()-i,1);arr.push(_ymd(dd).slice(0,7));}return arr;}
 function exportAnalytics(){
   const d=window._anaData;if(!d)return;
   const rows=[['Advanced Analytics Export','Generated: '+new Date().toLocaleString('en-GB')],[],
@@ -10442,7 +11029,7 @@ function exportAnalytics(){
     ...d.catData.map(x=>[x.label,x.value]),[],
     ['Payroll Cost Trend (Monthly Net)'],['Month','Total Net Payroll'],
     ...d.payTrend.map(x=>[x.label,x.value])];
-  dlCSV(rows,'Advanced_Analytics_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Advanced_Analytics_'+_ymd(new Date())+'.csv');
   auditLog('Export','Advanced Analytics exported');
 }
 function renderAnalytics(){
@@ -10495,8 +11082,8 @@ const NOTICE_TYPES={
 };
 function ensureNotices(){if(!Array.isArray(S.notices))S.notices=[];return S.notices;}
 function noticeTag(t){const nt=NOTICE_TYPES[t]||NOTICE_TYPES.general;return `<span class="notice-tag ${nt.cls}">${nt.icon} ${nt.label}</span>`;}
-function noticeIsExpired(n){if(!n.expiry)return false;const todayStr=new Date().toISOString().slice(0,10);return n.expiry<todayStr;}
-function activeNotices(){const todayStr=new Date().toISOString().slice(0,10);
+function noticeIsExpired(n){if(!n.expiry)return false;const todayStr=_ymd(new Date());return n.expiry<todayStr;}
+function activeNotices(){const todayStr=_ymd(new Date());
   return ensureNotices().filter(n=>n&&!noticeIsExpired(n)).sort((a,b)=>{
     if(!!b.pinned-!!a.pinned!==0)return (!!b.pinned)-(!!a.pinned);
     return (b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||'');
@@ -10605,7 +11192,7 @@ function noticeModal(id){
       <label class="lbl">ধরন</label><select class="inp" id="nt_type">${noticeTypeOptions(n?n.type:'general')}</select>
       <label class="lbl">বিস্তারিত বার্তা</label><textarea class="inp" id="nt_msg" rows="4" placeholder="নোটিশের বিস্তারিত লিখুন...">${n?esc(n.message):''}</textarea>
       <div style="display:flex;gap:10px">
-        <div style="flex:1"><label class="lbl">তারিখ</label><input class="inp" type="date" id="nt_date" value="${n?n.date:new Date().toISOString().slice(0,10)}"></div>
+        <div style="flex:1"><label class="lbl">তারিখ</label><input class="inp" type="date" id="nt_date" value="${n?n.date:_ymd(new Date())}"></div>
         <div style="flex:1"><label class="lbl">মেয়াদ শেষ (ঐচ্ছিক)</label><input class="inp" type="date" id="nt_expiry" value="${n&&n.expiry?n.expiry:''}"></div>
       </div>
       <label style="display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12.5px;cursor:pointer">
@@ -10645,7 +11232,7 @@ function noticeSave(id){
   const title=($('#nt_title').value||'').trim();
   const type=$('#nt_type').value;
   const message=($('#nt_msg').value||'').trim();
-  const date=$('#nt_date').value||new Date().toISOString().slice(0,10);
+  const date=$('#nt_date').value||_ymd(new Date());
   const expiry=$('#nt_expiry').value||'';
   const pinned=!!$('#nt_pin').checked;
   const ov=$('#overlay');
@@ -10688,7 +11275,7 @@ function noticeSignToggle(){
 }
 function noticePrintModal(id){
   const n=ensureNotices().find(x=>x.id===id);if(!n)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const _opts=noticeSignOptions(),_last=S.settings.noticeSignKey||'s1',_cust=S.settings.noticeCustom||{role:'',name:''};
   const _scope=NOTICE_SCOPES[S.settings.noticeScope]?S.settings.noticeScope:'factory';
   const _sel=(_last==='custom'||_opts.some(x=>x.k===_last))?_last:(_opts[0]?_opts[0].k:'custom');
@@ -10744,7 +11331,7 @@ function printNotice(id){
   save();
   let dept=($('#np_dept')&&$('#np_dept').value||(NOTICE_SCOPES[_scopeK]||NOTICE_SCOPES.factory).dept).trim();
   if(window._LL!=='bn'){const _DM={'ফ্যাক্টরি বিভাগ':'Factory Department','হেড অফিস':'Head Office','সকল বিভাগ (ফ্যাক্টরি ও হেড অফিস)':'All Departments (Factory & Head Office)'};if(_DM[dept])dept=_DM[dept];}
-  const printDate=($('#np_date')&&$('#np_date').value)||new Date().toISOString().slice(0,10);
+  const printDate=($('#np_date')&&$('#np_date').value)||_ymd(new Date());
   const withLH=((document.querySelector('input[name="np_lh"]:checked')||{value:undefined}).value||'with')==='with';
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
@@ -10925,7 +11512,7 @@ function _idConflictDel(i){
   if(!confirm(c.emp.name+' — '+c.type+' ('+c.label+') এই রেকর্ডটি মুছে ফেলবেন?'))return;
   c.del();toast('মুছে ফেলা হয়েছে');renderIdConflicts();
 }
-function _monthEnd(mk){const[y,m]=mk.split('-').map(Number);return new Date(y,m,0).toISOString().slice(0,10);}
+function _monthEnd(mk){const[y,m]=mk.split('-').map(Number);return _ymd(new Date(y,m,0));}
 function _monthStart(mk){return mk+'-01';}
 function turnoverCheckSuggestions(fromMk,toMk){
   const allMonths=Object.keys(S.salary||{}).sort();
@@ -11058,7 +11645,7 @@ function crExportCSV(){
   }else{
     list.forEach((e,i)=>rows.push([i+1,...fields.map(f=>f.get(e))]));
   }
-  dlCSV(rows,'Custom_Report_'+new Date().toISOString().slice(0,10)+'.csv');
+  dlCSV(rows,'Custom_Report_'+_ymd(new Date())+'.csv');
   auditLog('Export','Custom Report exported ('+fields.length+' columns, '+list.length+' rows)');
 }
 function crPrint(){
@@ -11148,6 +11735,7 @@ function renderReports(){
   if(_rptView==='leavebal') return renderLeaveBalance();
   if(_rptView==='inchistory') return renderIncHistory();
   if(_rptView==='payroll') return renderPayrollSummary();
+  if(_rptView==='yearsum') return renderYearSummary();
   if(_rptView==='idcheck') return renderIdConflicts();
   if(_rptView==='analytics') return renderAnalytics();
   if(_rptView==='turncheck') return renderTurnoverCheck();
@@ -11162,6 +11750,7 @@ function renderReports(){
     {id:'leavebal',icon:'🌴',title:'Leave Balance Report',sub:'প্রতি কর্মচারীর ছুটির হিসাব'},
     {id:'inchistory',icon:'📈',title:'Increment History Report',sub:'বেতন বৃদ্ধির পূর্ণ ইতিহাস'},
     {id:'payroll',icon:'💰',title:'Payroll Summary',sub:'মাসিক বেতন খরচের পূর্ণ breakdown'},
+    {id:'yearsum',icon:'📅',title:'Year Summary',sub:'১২ মাসের খরচ, কর্মী, যোগদান/চলে যাওয়া — চার্ট ও English PDF'},
     {id:'tdschallan',icon:'🧾',title:'TDS Challan Report',sub:'NBR-এ কর জমা দেওয়ার জন্য মাসিক TDS বিবরণী'},
     {id:'pf',icon:'🏦',title:'Provident Fund',sub:'PF Fund contribution ট্র্যাক ও Statement'},
     {id:'analytics',icon:'📊',title:'Advanced Analytics',sub:'Turnover trend, department cost, payroll — চার্ট সহ'},
@@ -11395,7 +11984,7 @@ function printPFStatement(id){
     <div class="sub" style="font-weight:700;font-size:13px;color:#1a2e4a">Provident Fund Statement</div>
     <div class="box">
       <div><b>Name:</b> ${esc(e.name)}</div><div><b>Designation:</b> ${esc(e.designation||'—')}</div>
-      <div><b>Joining:</b> ${fmtDateP(e.join)}</div><div><b>Statement Date:</b> ${fmtDateP(new Date().toISOString().slice(0,10))}</div>
+      <div><b>Joining:</b> ${fmtDateP(e.join)}</div><div><b>Statement Date:</b> ${fmtDateP(_ymd(new Date()))}</div>
     </div>
     <h2>Contribution History</h2>
     <table><thead><tr><th>SL</th><th>Month</th><th class="r">Basic</th><th class="r">Employee</th><th class="r">Company</th><th class="r">Total</th><th class="r">Running Balance</th></tr></thead>
@@ -11415,7 +12004,7 @@ function printPFStatement(id){
 /* --- PAYROLL SUMMARY --- */
 function renderPayrollSummary(){
   const mks=Object.keys(S.salary||{}).sort().reverse();
-  const selMk=window._rptPayMk||(mks[0]||new Date().toISOString().slice(0,7));
+  const selMk=window._rptPayMk||(mks[0]||_ymd(new Date()).slice(0,7));
   const sh=S.salary[selMk];
   const emps=activeEmps();
 
@@ -11989,7 +12578,7 @@ function renderLeave(){
   const lvFilter=window._lvFilter||'monthly';
   const lvM1=window._lvM1||(yr+'-01');
   const lvM2=window._lvM2||(yr+'-'+String(new Date().getMonth()+1).padStart(2,'0'));
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=_ymd(new Date());
   const curMon=todayStr.slice(0,7);
 
   function lvInRange(l){
@@ -12090,7 +12679,7 @@ function lvSetFilter(f){
   if(f==='range'){
     const yr=String(new Date().getFullYear());
     if(!window._lvM1)window._lvM1=yr+'-01';
-    if(!window._lvM2)window._lvM2=new Date().toISOString().slice(0,7);
+    if(!window._lvM2)window._lvM2=_ymd(new Date()).slice(0,7);
   }
   renderLeave();
 }
@@ -12166,7 +12755,7 @@ function lvApprNote(){
 
 function leaveModal(){
   const act=activeEmps();
-  const today=new Date().toISOString().slice(0,10);
+  const today=_ymd(new Date());
   const signs=S.settings.signs||[];
   const agmSign=(sign2()[1]||'');
   $('#overlay').innerHTML=`<div class="modal" style="max-width:480px"><div class="modal-h"><h3>ছুটির আবেদন</h3><button class="x" onclick="closeM()">×</button></div>
@@ -12206,7 +12795,7 @@ function leaveSave(doPrintAfter){
   if(!canDo('leave','add')){denyToast();return;}
   const empId=+$('#lv_emp').value;
   const from=$('#lv_from').value,to=$('#lv_to').value;
-  const applyDate=$('#lv_applyDate').value||new Date().toISOString().slice(0,10);
+  const applyDate=$('#lv_applyDate').value||_ymd(new Date());
   if(!from||!to){toast('তারিখ দিন');return;}
   let days=daysBetween(from,to);if(days<=0){toast('শেষ তারিখ শুরুর পরে হতে হবে');return;}
   if($('#lv_half')&&$('#lv_half').checked){if(from!==to){toast('Half-day শুধু এক দিনের জন্য');return;}days=0.5;}
@@ -12225,7 +12814,7 @@ function leaveApprove(id){
   const e=S.employees.find(x=>x.id===l.empId);
   const name=e?e.name:'Employee';
   if(!confirm(`${name}-এর ${l.days} দিনের ছুটি Approve করবেন?\n\nApprove করলে এটি Worker-এর ছুটির হিসাবে যোগ হবে।`))return;
-  l.apr=leaveApproverFor(e||{});l.status='approved';l.approvedAt=new Date().toISOString().slice(0,10);
+  l.apr=leaveApproverFor(e||{});l.status='approved';l.approvedAt=_ymd(new Date());
   auditLog('Leave Approve','Leave #'+id+' approved');
   save();renderLeave();toast('✓ Approved! ছুটি Worker-এর রেকর্ডে যোগ হয়েছে','teal');
 }
@@ -12292,7 +12881,7 @@ function leaveUpdate(id){
   l.reason=($('#le_reason').value||'').trim();
   l.appliedAt=$('#le_applyDate').value||l.appliedAt;
   l.status=newStatus;
-  if(willApprove&&!wasApproved){l.approvedAt=new Date().toISOString().slice(0,10);l.apr=leaveApproverFor(S.employees.find(x=>x.id===l.empId)||{});}
+  if(willApprove&&!wasApproved){l.approvedAt=_ymd(new Date());l.apr=leaveApproverFor(S.employees.find(x=>x.id===l.empId)||{});}
   if(!willApprove){delete l.approvedAt;delete l.apr;}
   save();closeM();renderLeave();
   const msg=willApprove&&!wasApproved?'✓ Updated ও Approved — Worker data-তে count হয়েছে':!willApprove&&wasApproved?'⚠️ Updated — ছুটি Worker data থেকে সরানো হয়েছে':'✓ Update সম্পন্ন';
@@ -12571,7 +13160,7 @@ function cleanOrphanInc(){const orph=orphanIncs();if(!orph.length){toast('কো
   const ids=new Set(orph.map(x=>x.id));_markDeleted('increments',[...ids]);S.increments=(S.increments||[]).filter(x=>!ids.has(x.id));save();renderIncrement();toast(orph.length+'টি পুরনো record মুছে ফেলা হয়েছে');}
 function newIncSheet(){
   if(!canDo('increment','add')){denyToast();return;}
-  const now=new Date().toISOString().slice(0,7);
+  const now=_ymd(new Date()).slice(0,7);
   incSheet=prompt('Increment Sheet Month (YYYY-MM)? (default: '+now+')',now);
   if(!incSheet)return;
   ensureIncSheet(incSheet);incEffMonth=incSheet;save();
@@ -12853,7 +13442,7 @@ function impReview(matches){
     target=`<label class="lbl">${lbl} *</label><input class="inp" type="month" id="imp_tmonth" value="${nowMonth()}">`;
   }else if(cfg.target==='bonus'){
     target=`<div class="grid2"><div><label class="lbl">Bonus Title *</label><input class="inp" id="imp_btitle" value="Imported Bonus"></div>
-      <div><label class="lbl">তারিখ</label><input class="inp" type="date" id="imp_bdate" value="${new Date().toISOString().slice(0,10)}"></div></div>`;
+      <div><label class="lbl">তারিখ</label><input class="inp" type="date" id="imp_bdate" value="${_ymd(new Date())}"></div></div>`;
   }
   const fcols=cfg.fields.map(f=>`<th class="r">${f.lbl}</th>`).join('');
   const showCur=cfg.showGross||cfg.target==='effmonth';
@@ -12901,7 +13490,7 @@ function impApply(){
       S.ot[mk].rows[m.empId]=row;count++;});
     S.ot[mk]._t=Date.now();
   }else if(_impType==='bonus'){
-    const title=($('#imp_btitle').value||'Imported Bonus').trim();const date=$('#imp_bdate').value||new Date().toISOString().slice(0,10);
+    const title=($('#imp_btitle').value||'Imported Bonus').trim();const date=$('#imp_bdate').value||_ymd(new Date());
     const rows={};checked.forEach(i=>{const m=matches[i];rows[m.empId]=getv(i,'amount');count++;});
     S.bonus.push({title,date,method:'fixed',multiplier:1,fixed:0,rows,emps:Object.keys(rows).map(x=>+x),catSnap:Object.fromEntries(Object.keys(rows).map(id=>{const em=S.employees.find(x=>x.id===+id);return [+id,em?em.category:''];})),_t:Date.now()});
   }else if(_impType==='deposit'){
@@ -12919,7 +13508,7 @@ function impApply(){
       // Recompute pct from final amount (full precision so amount stays exact)
       pct=cur>0&&amt>0?(amt/cur*100):0;
       const finalNg=cur+amt+perf+promo;
-      S.increments.push({id:'inc'+Date.now()+'_'+i,empId:m.empId,category:emp.category,effMonth:mk,date:mk+'-01',oldGross:cur,newGross:finalNg,amount:amt,perf,promo,pct,remarks:rem,createdAt:new Date().toISOString().slice(0,10),_t:Date.now()});
+      S.increments.push({id:'inc'+Date.now()+'_'+i,empId:m.empId,category:emp.category,effMonth:mk,date:mk+'-01',oldGross:cur,newGross:finalNg,amount:amt,perf,promo,pct,remarks:rem,createdAt:_ymd(new Date()),_t:Date.now()});
       S.incSheet[mk].rows[m.empId]={pct,perf,promo,baseGross:cur,remarks:rem,_cat:emp.category,_sec:emp.section||'',_t:Date.now()};count++;});
     S.incSheet[mk]._t=Date.now();
   }
@@ -12979,6 +13568,36 @@ try{const v=document.getElementById('appVerSide');if(v)v.textContent='v'+APP_VER
 if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
 }
+/* ---------- v2.8.1 — সব লেখার কাজে অনুমতি + License (READ-ONLY) পাহারা ----------
+   কিছু বোতামের function নিজে Role অনুমতি দেখত না (শুধু বোতাম লুকিয়ে রাখা হতো) — License মেয়াদ শেষে READ-ONLY
+   অবস্থাতেও সেগুলো দিয়ে ডাটা বদলানো যেত। এখন এক জায়গা থেকে সবগুলো পাহারা দেওয়া হয়। */
+(function(){
+  const G={
+    transferSave:['emp','edit'],confirmSave:['emp','edit'],whyForceGross:['emp','edit'],applyGrossSync:['emp','edit'],empDocPick:['emp','edit'],
+    settleFinalize:['emp','edit'],_commitNewEmp:['emp','add'],reviveEmpDup:['emp','add'],doMergeEmp:['emp','edit'],makePermanent:['emp','edit'],
+    bonusMethod:['bonus','edit'],b_set:['bonus','edit'],catRuleSet:['bonus','edit'],b_setStr:['bonus','edit'],bonusEdit:['bonus','edit'],bonusPctEdit:['bonus','edit'],bonusSaveEdit:['bonus','edit'],bonusResubmit:['bonus','edit'],
+    depRelinkSave:['deposit','edit'],depCleanOrphans:['deposit','edit'],depToggle:['deposit','edit'],depEdit:['deposit','edit'],
+    loanPay:['advance','edit'],leaveUpdate:['leave','edit'],
+    incResubmit:['increment','edit'],delIncSheet:['increment','delete'],rebuildIncSheets:['increment','edit'],cleanOrphanInc:['increment','edit'],incAddEmp:['increment','edit'],whyDelInc:['increment','delete'],
+    bioApply:['attend','edit'],
+    leaveSet:'approve',
+    discAdd:0,optAdd:0,_signLblSave:0,saveSettings:0,savePfGratSettings:0,saveSmsGw:0,restore:0,importHistory:0,resetAll:0,eraseAllFresh:0,
+    essLeaveSubmit:0,essLoanSubmit:0,userSave:0,userToggle:0,userDel:0,auditLogClearAll:0,roleDel:0,fixOrphanGroup:0,delOrphanGroup:0,
+    applyTurnoverFixes:0,saveTdsChallanMeta:0,binRestore:0,holDel:0,createMonth:0
+  };
+  Object.keys(G).forEach(name=>{
+    const f=window[name]; if(typeof f!=='function') return;
+    const rule=G[name];
+    window[name]=function(){
+      if(typeof licReadOnly==='function'&&licReadOnly()){ licBlockedNotice(); return; }
+      if(CU){
+        if(rule==='approve'){ if(!(canApprove()||canDo('leave','edit'))){ denyApproveToast(); return; } }
+        else if(Array.isArray(rule)&&!canDo(rule[0],rule[1])){ denyToast(); return; }
+      }
+      return f.apply(this,arguments);
+    };
+  });
+})();
 </script>
 </body>
 </html>

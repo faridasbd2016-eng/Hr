@@ -3,7 +3,7 @@
    • CDN লাইব্রেরি/ফন্ট: cache-first — একবার লোড হলে ইন্টারনেট ছাড়াও Excel/PDF কাজ করে
    • Cloud Sync (Apps Script / Supabase) কখনো cache হয় না
    নতুন build দিলে নিচের VERSION বদলে দিন। */
-const VERSION = 'amaz-hr-v2.6.5';
+const VERSION = 'amaz-hr-v2.8.1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 

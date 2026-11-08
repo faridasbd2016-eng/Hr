@@ -2,7 +2,7 @@
 
 Amin Square (BD) Ltd. এর জন্য তৈরি HR ও Payroll সফটওয়্যার — একটা মাত্র HTML ফাইল, কোনো সার্ভার লাগে না।
 
-**Version:** 2.6 · **Powered by:** AMAZ ERP SOLUTION
+**Version:** 2.8.1 · **Powered by:** AMAZ ERP SOLUTION
 
 ## মডিউল
 - কর্মচারী (Employee) — প্রোফাইল, ডকুমেন্ট, Service Book, Appointment/Experience/Salary Certificate, Settlement
@@ -35,3 +35,8 @@ Amin Square (BD) Ltd. এর জন্য তৈরি HR ও Payroll সফট�
 - User Panel → **🔑 Recovery Key** বানিয়ে নিরাপদ জায়গায় রাখুন — Admin পাসওয়ার্ড ভুলে গেলে Login পাতা থেকে রিসেট করা যাবে।
 - Password গুলো salt + SHA-256 hash হিসেবে জমা থাকে, সরাসরি নয়।
 - Cloud Sync এর Apps Script URL / Supabase key কোডে নয়, Settings থেকে বসান — তাহলে repo তে কোনো গোপন তথ্য থাকে না।
+
+## version.json — Update notice
+প্রতিবার নতুন version আপলোড করার সময় `version.json` এর `"version"` নতুন নম্বরে বদলে দিন (যেমন `"2.9"`) আর `"notes"` এ ছোট করে কী নতুন। তাহলে যাদের অ্যাপ খোলা আছে তাদের উপরে "নতুন ভার্সন এসেছে — এখনই আপডেট" নোটিশ আসবে। `sw.js` এর `VERSION` ও বদলাবেন।
+
+⚠️ `AMAZ_License_Generator_VENDOR_ONLY.html` কখনো এই repo তে দেবেন না।
