@@ -450,6 +450,15 @@ table.t input.cell.w70{width:70px}
 .overlay{position:fixed;inset:0;background:transparent;backdrop-filter:blur(3px) saturate(105%);-webkit-backdrop-filter:blur(3px) saturate(105%);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .overlay.show{display:flex}
 #wkCard .wk-ic svg{width:20px;height:20px;display:block}
+.pdfRow{display:flex;align-items:center;gap:4px}.pdfRow>button:first-child{flex:1}
+.tmenu-pop .pdfx{flex:none!important;width:auto!important;padding:6px 10px!important;border:1px solid var(--border2)!important;border-radius:8px!important;font-size:11.5px!important;font-weight:700!important;color:var(--gold)!important;background:var(--bg2)!important}
+.tmenu-pop .pdfx:hover{background:var(--pm-tint,#eef2ff)!important}
+.pdfBtn{margin-left:6px}
+@media (max-width:760px){.tmenu-pop .pdfRow+.pdfRow,.tmenu-pop .pdfRow+button,.tmenu-pop button+.pdfRow{border-top:1px solid var(--border)}.tmenu-pop .pdfRow>button:first-child{border-top:0!important}.tmenu-pop .pdfx{padding:10px 14px!important;font-size:13px!important}}
+@media print{.pdfx,.pdfBtn{display:none!important}}
+#dlBox svg,.btn>svg{width:19px;height:19px;flex:none;vertical-align:-4px}
+#dlBox .modal-b svg{width:24px;height:24px}
+#dlBox .modal-f .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}
 #undoBar{position:fixed;left:18px;bottom:18px;z-index:450;display:flex;gap:10px;align-items:center;max-width:min(480px,calc(100vw - 36px));padding:8px 8px 8px 14px;border-radius:14px;background:var(--panel,#fff);color:var(--txt);border:1px solid var(--border);box-shadow:0 14px 34px rgba(17,23,53,.18);font-size:12.5px;transform:translateY(160%);transition:transform .25s ease}
 #undoBar.on{transform:none}#undoBar .x{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px}
 @media (max-width:760px){#undoBar{left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:none}}
@@ -1066,16 +1075,29 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   table.t.mcard td:has(> button[onclick^="empMove"]){display:none!important}
   /* গতি: মোবাইলে blur, স্থির পটভূমি আর ভারী ছায়া বন্ধ — এগুলোই ফোনে ঝাঁকি/আটকে যাওয়ার মূল কারণ */
   *,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body .overlay,html body .overlay *,html body .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   html body,html body.light,html body:not(.light){background-attachment:scroll!important;background:var(--bg)!important}
   .topbar,html body.light .topbar,html body:not(.light) .topbar{background:var(--bg2)!important}
   .overlay{background:rgba(15,23,42,.45)!important}
   .panel,.kc,.card,.remCard,table.t.mauto tr,table.t.mcard tr{box-shadow:0 1px 2px rgba(15,23,42,.06)!important}
   .kc::after,.kc-row .kpi-ic::before{display:none!important}
   table.t.mauto tbody tr,table.t.mcard tbody tr{content-visibility:auto;contain-intrinsic-size:auto 200px}
-  .content{contain:layout style}
   *{transition-duration:0s!important;animation-duration:0s!important}
   #mSheet.on,#mSheetBg.on{animation-duration:.18s!important}
   html.top-hide .topbar,.topbar{transition:transform .2s ease!important}
+  /* Print / Export এর মতো ড্রপডাউন — মোবাইলে নিচ থেকে ওঠা sheet (আগে পর্দার বাইরে বামে চলে যেত) */
+  .tmenu.open::before{content:'';position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:301}
+  .tmenu-pop{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;min-width:0!important;max-height:72vh;overflow-y:auto;z-index:302!important;border-radius:22px 22px 0 0!important;padding:10px 12px calc(14px + env(safe-area-inset-bottom))!important;background:var(--bg2)!important;box-shadow:0 -14px 40px rgba(0,0,0,.22)!important;border:0!important}
+  .tmenu-pop::before{content:'';display:block;width:42px;height:5px;border-radius:3px;background:var(--border2);margin:2px auto 10px}
+  .tmenu-pop button{font-size:15px!important;padding:13px 12px!important;border-radius:12px!important;white-space:normal!important}
+  .tmenu-pop button+button{border-top:1px solid var(--border)!important;border-radius:0!important}
+  .tmenu-lbl{font-size:11.5px!important;padding:10px 12px 4px!important}
+  #dlBox{align-items:flex-end!important}
+  #dlBox .modal{min-height:0!important;border-radius:22px 22px 0 0!important}
+  #dlBox .modal-b{flex:none!important}
+  .prof-wrap{align-items:stretch!important;flex-direction:column}
+  .prof-right,.prof-main,.prof-card{width:100%!important;max-width:100%!important;min-width:0!important}
+  .overlay .modal-b div[style*="display:flex"]{flex-wrap:wrap}
   /* নিচের Tab Bar */
   html.appm #bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--bg2);border-top:1px solid var(--border);box-shadow:0 -6px 22px rgba(15,23,42,.07);padding:6px 4px calc(6px + env(safe-area-inset-bottom));transition:transform .22s ease}
   html.appm.kb-open #bnav,html.appm.kb-open #fab{transform:translateY(140%)}
@@ -2327,7 +2349,7 @@ function toggleTMenu(btn,ev){
   if(wasOpen)return;
   wrap.classList.add('open');
   setTimeout(()=>{
-    const close=e=>{ if(!wrap.contains(e.target)){wrap.classList.remove('open');document.removeEventListener('click',close);} };
+    const close=e=>{ if(!wrap.contains(e.target)||e.target===wrap){wrap.classList.remove('open');document.removeEventListener('click',close);} };
     document.addEventListener('click',close);
   },0);
 }
@@ -3964,6 +3986,15 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'3.6',d:'19 Nov 2026',t:'Print / PDF এক চাপে (Costing এর মতো) ও মোবাইলের ছোট ভুল ঠিক',items:[
+    'প্রতিটা Print এর পাশে “PDF” — Print / Export মেনুতে (Salary, OT, Payslip, Bank Sheet, Report…) আর পাতার উপরের Print বোতামের পাশে; চাপলে কোনো প্রশ্ন ছাড়াই সাথে সাথে PDF — শেষবার বাছা কাগজ ও দিক মনে রাখে',
+    'মোবাইলে PDF তৈরি হলে নিচে ছোট বাক্স: Download · Share (WhatsApp/Drive/Email) · Open',
+    'Ctrl+P চাপলে এই পাতার মূল Print খোলে (পুরো সফটওয়্যারের পর্দা ছাপা হয় না)',
+    'মোবাইলে কর্মচারীর Profile পাতা পর্দার বাইরে চওড়া হয়ে যেত — ঠিক; জানালার ভেতরের বোতামের সারি (যেমন Bonus এর 0.5× … 2×) এখন নিচে নামে, পাশে কাটা পড়ে না']},
+  {v:'3.5.1',d:'19 Nov 2026',t:'মোবাইলে Print মেনু ও PDF Download ঠিক',items:[
+    'মোবাইলে “Print / Export ▾” চাপলে মেনু পর্দার বাইরে বামে চলে যেত — এখন নিচ থেকে ওঠা পরিষ্কার তালিকা (বড় বোতাম); বাইরে চাপলে বা ফোনের Back এ বন্ধ',
+    'মোবাইলে PDF / Excel তৈরি হওয়ার পর “File ready” বাক্সে আইকন বিশাল হয়ে সব ঢেকে দিত — এখন ছোট বাক্স: ফাইলের নাম, Download, Share, Open',
+    'মোবাইলে জানালার পেছনের ঝাপসা (blur) বন্ধ — দ্রুত']},
   {v:'3.5',d:'19 Nov 2026',t:'OT Sheet এর নতুন Print — Overtime Payment Register (Salary থেকে আলাদা)',items:[
     'OT Print এখন সবুজ “OVERTIME PAYMENT REGISTER” — Legal Portrait কাগজে (Salary Sheet Navy রঙে Landscape) — ফাইলে রাখলে দেখেই আলাদা বোঝা যায়',
     'Top Sheet আগের মতোই প্রথম পাতায় — Category অনুযায়ী কর্মী, OT ঘণ্টা, OT টাকা, Arrears, মোট; কথায় মোট টাকা; সই',
@@ -14210,6 +14241,7 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   window.addEventListener('popstate',()=>{
     if(!H.classList.contains('appm')||!(typeof CU!=='undefined'&&CU)) return;
     if(sheetOpen()){ closeSheet(); guard(); return; }
+    if(document.querySelector('.tmenu.open')){ closeTMenus(); guard(); return; }
     const ov2=document.getElementById('overlay2'), ov=document.getElementById('overlay');
     if(ov2&&ov2.classList.contains('show')){ closeM2(); guard(); return; }
     if(ov&&ov.classList.contains('show')){ if(typeof _ovGuardOk!=='function'||_ovGuardOk()) closeM(); guard(); return; }
@@ -14622,6 +14654,79 @@ function weeklyPrint(){
     return _cg.apply(this,arguments);
   };
 })();
+/* =====================================================================
+   v3.6 — Print / PDF সহজ (Costing এর মতো): প্রতিটা Print এর পাশে “PDF” — এক চাপে PDF, কোনো জিজ্ঞাসা নেই
+   (শেষবার বাছা কাগজ ও দিক মনে রাখে); মোবাইলে PDF তৈরি হলে Download / Share / Open
+   ===================================================================== */
+(function(){
+  const PRX=/\bprint[A-Z]\w*\s*\(|printSheet\(|\bprintSalary\(|\bprintOT\(/;
+  let _pdT=0;
+  window._pdfNow=function(fnCall){
+    window._pdDirect=true; clearTimeout(_pdT); _pdT=setTimeout(()=>{ window._pdDirect=false; },4000);
+    try{ closeTMenus(); }catch(e){}
+    try{ (new Function(fnCall))(); }catch(e){ window._pdDirect=false; toast('PDF তৈরি করা গেল না: '+e.message); }
+  };
+  const _dpD=doPrint;
+  doPrint=function(html,orientation,skipFooter){
+    if(window._pdDirect){
+      window._pdDirect=false; clearTimeout(_pdT);
+      const r=_dpD.apply(this,arguments); // ডায়ালগ তৈরি হয় (কাগজ/দিক ঠিক করতে) — সাথে সাথে PDF চালাই
+      if(typeof _pdPending!=='undefined'&&_pdPending){ try{ const o2=document.getElementById('overlay2'); if(o2) o2.style.visibility='hidden'; toast('⏳ PDF তৈরি হচ্ছে…'); _pdPdf().finally(()=>{ const o=document.getElementById('overlay2'); if(o) o.style.visibility=''; }); }catch(e){} }
+      else { // printAsk=false হলে সরাসরি Print হয়ে যেত — PDF এর জন্য pending বানাই
+        _pdPending={html,orientation:orientation||'landscape',skipFooter}; toast('⏳ PDF তৈরি হচ্ছে…'); _pdPdf();
+      }
+      return r;
+    }
+    return _dpD.apply(this,arguments);
+  };
+  // printAsk=false অবস্থায় _dpD নিজেই Print চালিয়ে দেয় — PDF চাইলে সেটা আটকাই
+  const _dpn=_doPrintNow;
+  _doPrintNow=function(html,or,skip,asDesigned,noPrint){ if(window._pdDirectBlock&&!noPrint) return ''; return _dpn.apply(this,arguments); };
+  const _dpD2=doPrint;
+  doPrint=function(){ if(window._pdDirect&&S.settings&&S.settings.printAsk===false){ window._pdDirectBlock=true; try{ return _dpD2.apply(this,arguments); } finally{ window._pdDirectBlock=false; } } return _dpD2.apply(this,arguments); };
+
+  function augment(root){
+    if(!root) return;
+    // ড্রপডাউনের প্রতিটা Print এর পাশে PDF
+    root.querySelectorAll('.tmenu-pop button:not([data-pdfx])').forEach(b=>{
+      b.dataset.pdfx='1';
+      const oc=b.getAttribute('onclick')||''; if(!PRX.test(oc)||/Excel|CSV|xlsx/i.test(b.textContent)) return;
+      const call=oc.replace(/closeTMenus\(\);?/,'');
+      const row=document.createElement('div'); row.className='pdfRow';
+      b.parentNode.insertBefore(row,b); row.appendChild(b);
+      const x=document.createElement('button'); x.type='button'; x.className='pdfx'; x.dataset.pdfx='1'; x.title='সরাসরি PDF Download'; x.textContent='PDF';
+      x.onclick=e=>{ e.stopPropagation(); _pdfNow(call); }; row.appendChild(x);
+    });
+    // আলাদা Print বোতাম (পাতার উপরে / জানালার নিচে) এর পাশে PDF
+    root.querySelectorAll('button.btn:not([data-pdfx]),a.btn:not([data-pdfx])').forEach(b=>{
+      b.dataset.pdfx='1';
+      if(b.closest('.tmenu-pop')||b.classList.contains('pdfx')) return;
+      const oc=b.getAttribute('onclick')||'', t=(b.textContent||'');
+      if(!PRX.test(oc)||!/Print|প্রিন্ট|🖨/.test(t)||/Excel|CSV|xlsx|Setting/i.test(t)) return;
+      const x=document.createElement('button'); x.type='button'; x.className=b.className.replace(/\bgold\b|\bprimary\b/g,'').trim()+' pdfBtn'; x.dataset.pdfx='1'; x.title='সরাসরি PDF Download'; x.innerHTML='⤓ PDF';
+      const call=oc.replace(/closeTMenus\(\);?/,'');
+      x.onclick=e=>{ e.stopPropagation(); _pdfNow(call); };
+      b.insertAdjacentElement('afterend',x);
+    });
+  }
+  window._pdfAugment=augment;
+  let t=0; const run=()=>{ clearTimeout(t); t=setTimeout(()=>{ augment(document.getElementById('view')); augment(document.getElementById('topActions')); document.querySelectorAll('.overlay.show').forEach(o=>augment(o)); },50); };
+  function boot(){
+    const mo=new MutationObserver(run);
+    ['view','topActions','overlay'].forEach(id=>{ const e=document.getElementById(id); if(e) mo.observe(e,{childList:true,subtree:true}); });
+    run();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+
+/* Ctrl+P — এই পাতার মূল Print (পুরো সফটওয়্যারের পর্দা ছাপার বদলে) */
+document.addEventListener('keydown',e=>{
+  if(!(e.ctrlKey||e.metaKey)||e.shiftKey||!(e.key==='p'||e.key==='P')) return;
+  if(!(typeof CU!=='undefined'&&CU)) return;
+  const scope=[...document.querySelectorAll('.overlay.show')].pop()||document;
+  const b=[...scope.querySelectorAll('.tmenu-pop button,button.btn')].find(x=>/\bprint[A-Z]\w*\(/.test(x.getAttribute('onclick')||'')&&!/PDF|Excel|CSV/i.test(x.textContent||''));
+  if(b){ e.preventDefault(); b.click(); }
+},true);
 </script>
 
 <script>
