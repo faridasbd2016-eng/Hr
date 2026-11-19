@@ -156,6 +156,7 @@ body.role-readonly input.cell{pointer-events:none!important;background:transpare
 .lgCard{width:100%;max-width:380px}
 .lgLogo{border-radius:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:grid;place-items:center;font-weight:800;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3)}
 .lgMobBrand{display:none;align-items:center;gap:10px;margin-bottom:22px}
+@media(max-width:900px){.lgMain{flex-direction:column}}
 .lgMobBrand .lgLogo{width:40px;height:40px;font-size:19px}
 .lgMobBrand b{font-size:18px;color:#0f172a;display:block}
 .lgMobBrand span{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#64748b;font-weight:600}
@@ -978,10 +979,11 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   html,body{overflow-x:hidden;max-width:100%}
   body{font-size:14.5px;padding-bottom:env(safe-area-inset-bottom)}
   .side{width:280px!important;left:-300px!important;box-shadow:none}
-  .side.open{left:0!important;box-shadow:12px 0 40px rgba(0,0,0,.25)}
+  .side.open{left:0!important;box-shadow:12px 0 40px rgba(0,0,0,.25);z-index:96!important;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .backdrop.show{z-index:95!important}
   .side-toggle{display:none!important}
   .backdrop.show{background:rgba(15,23,42,.42)}
-  .menu-btn{display:none!important}
+  .menu-btn{display:inline-flex!important;width:40px;height:40px;min-height:40px!important;align-items:center;justify-content:center;border-radius:12px!important;padding:0!important;font-size:20px!important;margin-left:-4px}
 
   /* Topbar — ছোট; নিচে নামলে লুকায়, উপরে উঠলে ফেরে */
   .topbar{padding:8px 12px!important;min-height:54px!important;gap:8px!important;transition:transform .25s ease,background .2s!important;padding-top:calc(8px + env(safe-area-inset-top))!important}
@@ -1062,6 +1064,18 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   .panel .tw:has(table.mauto){padding:10px}
 
   table.t.mcard td:has(> button[onclick^="empMove"]){display:none!important}
+  /* গতি: মোবাইলে blur, স্থির পটভূমি আর ভারী ছায়া বন্ধ — এগুলোই ফোনে ঝাঁকি/আটকে যাওয়ার মূল কারণ */
+  *,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body,html body.light,html body:not(.light){background-attachment:scroll!important;background:var(--bg)!important}
+  .topbar,html body.light .topbar,html body:not(.light) .topbar{background:var(--bg2)!important}
+  .overlay{background:rgba(15,23,42,.45)!important}
+  .panel,.kc,.card,.remCard,table.t.mauto tr,table.t.mcard tr{box-shadow:0 1px 2px rgba(15,23,42,.06)!important}
+  .kc::after,.kc-row .kpi-ic::before{display:none!important}
+  table.t.mauto tbody tr,table.t.mcard tbody tr{content-visibility:auto;contain-intrinsic-size:auto 200px}
+  .content{contain:layout style}
+  *{transition-duration:0s!important;animation-duration:0s!important}
+  #mSheet.on,#mSheetBg.on{animation-duration:.18s!important}
+  html.top-hide .topbar,.topbar{transition:transform .2s ease!important}
   /* নিচের Tab Bar */
   html.appm #bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--bg2);border-top:1px solid var(--border);box-shadow:0 -6px 22px rgba(15,23,42,.07);padding:6px 4px calc(6px + env(safe-area-inset-bottom));transition:transform .22s ease}
   html.appm.kb-open #bnav,html.appm.kb-open #fab{transform:translateY(140%)}
@@ -1119,14 +1133,14 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   .kc:active,.remCard:active,.card:active{transform:scale(.985)!important;transition:transform .08s}
   .kc:hover{transform:none!important}
 
-  /* Login — App এর মতো: উপরে রঙিন অংশ, নিচ থেকে ওঠা সাদা sheet */
-  #loginGate{background:var(--pm-grad)!important}
-  #loginGate .lgMain{background:transparent!important;padding:0!important;align-items:flex-end!important;min-height:100%;flex-direction:column;justify-content:flex-end!important;overflow-x:hidden}
-  #loginGate .lgCard{max-width:none!important;width:100%!important;background:#fff!important;border-radius:28px 28px 0 0!important;padding:28px 22px calc(24px + env(safe-area-inset-bottom))!important;box-shadow:0 -10px 30px rgba(0,0,0,.12)!important;margin-top:auto}
-  #loginGate .lgMobBrand{position:absolute;left:0;right:0;top:calc(48px + env(safe-area-inset-top));flex-direction:column;align-items:center;gap:12px!important;text-align:center;margin:0!important}
-  #loginGate .lgMobBrand .lgLogo{width:78px!important;height:78px!important;border-radius:24px!important;font-size:34px!important;background:#fff!important;color:#1D4ED8!important;box-shadow:0 14px 30px rgba(0,0,0,.18)!important}
-  #loginGate .lgMobBrand b{color:#fff!important;font-size:26px!important;font-weight:800}
+  /* Login — Costing এর মতো: উপরে রঙিন অংশে আইকন ও নাম (নিজের জায়গায়), নিচে সাদা অংশ — কখনো একটার উপর আরেকটা পড়ে না */
+  #loginGate{background:var(--pm-grad)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+  #loginGate .lgMain{background:transparent!important;padding:0!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;min-height:100%;overflow:visible!important}
+  #loginGate .lgMobBrand{position:static!important;display:flex!important;flex-direction:column;align-items:center;gap:10px!important;text-align:center;margin:0!important;padding:calc(62px + env(safe-area-inset-top)) 20px 26px;flex:none}
+  #loginGate .lgMobBrand .lgLogo{width:76px!important;height:76px!important;border-radius:24px!important;font-size:34px!important;background:#fff!important;color:#1D4ED8!important;box-shadow:0 14px 30px rgba(0,0,0,.18)!important}
+  #loginGate .lgMobBrand b{color:#fff!important;font-size:25px!important;font-weight:800}
   #loginGate .lgMobBrand span{color:rgba(255,255,255,.85)!important}
+  #loginGate .lgCard{max-width:none!important;width:100%!important;flex:1 0 auto;background:#fff!important;border-radius:28px 28px 0 0!important;padding:28px 22px calc(24px + env(safe-area-inset-bottom))!important;box-shadow:0 -10px 30px rgba(0,0,0,.12)!important;margin:0!important}
   #loginGate .lgInp{font-size:16px!important;min-height:50px!important}
   #loginGate .lgBtn{min-height:52px!important;font-size:16px!important}
   #loginGate .lgLinks{flex-wrap:wrap;gap:8px}
@@ -1135,9 +1149,10 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   .topbar .lang-btn{display:none!important}
 }
 @media (max-width:760px) and (max-height:640px){
-  #loginGate .lgMobBrand{top:calc(16px + env(safe-area-inset-top))}
+  #loginGate .lgMobBrand{padding-top:calc(22px + env(safe-area-inset-top));padding-bottom:16px}
   #loginGate .lgMobBrand .lgLogo{width:56px!important;height:56px!important;font-size:24px!important}
 }
+
 @media (prefers-reduced-motion:reduce){#mSheet.on,#mSheetBg.on{animation:none}.topbar{transition:none!important}}
 
 .btn[style*="background"]{border-color:transparent!important}
@@ -1237,8 +1252,8 @@ html body:not(.light) .panel,html body:not(.light) .card{background:var(--panel)
   </div>
   <div class="lgMain">
   <span class="lgVer" id="lgVer"></span><button type="button" class="lgLang lang-btn" onclick="toggleLang()" title="English">EN</button>
+  <div class="lgMobBrand"><div class="lgLogo">A</div><div><b>AMAZ HR</b><span>Payroll System</span></div></div>
   <div class="lgCard">
-    <div class="lgMobBrand"><div class="lgLogo">A</div><div><b>AMAZ HR</b><span>Payroll System</span></div></div>
     <h2 class="lgHead">Welcome back</h2>
     <div class="lgTitle" id="lgTitleTxt">Sign in to continue</div>
     <div id="lg_staffFields">
@@ -1838,9 +1853,52 @@ let _persistTimer=null,_persistDirty=false,_persistFirstDirtyAt=0;
    flushes on tab-hide/unload/reload below are what guarantee nothing is actually lost. */
 const PERSIST_IDLE_MS=2500;   // write this long after the last change...
 const PERSIST_MAX_MS=20000;   // ...but never let changes sit unwritten longer than this
+/* v3.4 — গতি: বড় ডাটা compress করা (মোবাইলে ১-৩ সেকেন্ড) এখন আলাদা Worker এ হয় — Save এর পর পাতা আর আটকে যায় না।
+   বন্ধ/Reload/অন্য ট্যাবে যাওয়ার সময় (flushPersist) আগের মতোই সাথে সাথে পুরোটা লেখা হয়। IndexedDB কপি সবসময় সাথে সাথে লেখা হয়। */
+let _pkW=null,_pkSeq=0;
+function _pkWorker(){
+  if(_pkW!==null) return _pkW;
+  _pkW=false;
+  try{
+    if(!window.Worker||!window.Blob) return false;
+    let src='';
+    for(const sc of document.scripts){ const t=sc.textContent||''; const i=t.indexOf('const LZS=(function(){'); if(i>-1){ const j=t.indexOf('\nconst LZ_PREFIX',i); if(j>i){ src=t.slice(i,j); break; } } }
+    if(!src) return false;
+    const code=src+'\nonmessage=function(e){var c=null;try{c=LZS.compressToUTF16(e.data.s);}catch(x){}postMessage({id:e.data.id,c:c});};';
+    const w=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));
+    w.onmessage=function(e){ _pkDone(e.data); };
+    w.onerror=function(){ _pkW=false; };
+    _pkW=w;
+  }catch(e){ _pkW=false; }
+  return _pkW;
+}
+let _pkJob=null;
+function _pkDone(d){
+  const job=_pkJob; if(!job||!d||d.id!==job.id) return; _pkJob=null;
+  if(job.id!==_pkSeq) return; // এর মধ্যে নতুন লেখা হয়ে গেছে
+  const packed=(d.c&&d.c.length<job.json.length)?(LZ_PREFIX+d.c):job.json;
+  try{
+    try{localStorage.setItem(KEY,packed);}
+    catch(q){ try{const l=_snapLoad();if(l.length>3){_snapSaveList(l.slice(0,3));}else{localStorage.removeItem(SNAP_KEY);}}catch(e2){} localStorage.setItem(KEY,packed); }
+    try{localStorage.setItem(KEY+'_savedAt',String(job.at));}catch(e3){}
+    if(_lastSaveFailed)_lastSaveFailed=false;
+  }catch(e){ if(!_lastSaveFailed){ _lastSaveFailed=true; try{_cloudSetStatus&&_cloudSetStatus('⚠️ এই device-এ ডাটা সেভ করা যাচ্ছে না (storage ভরে গেছে)','#dc2626');}catch(x){} } }
+}
 function _persistNow(){
   if(_persistTimer){clearTimeout(_persistTimer);_persistTimer=null;}
   if(!_persistDirty)return;
+  const w=_pkWorker();
+  if(!w){ _persistNowSync(); return; }
+  _persistDirty=false;_persistFirstDirtyAt=0;
+  const _json=JSON.stringify(S), _at=Date.now(), id=++_pkSeq;
+  try{_idbSet(KEY+'_mirror',{at:_at,json:_json});}catch(e){}
+  _pkJob={id,json:_json,at:_at};
+  try{ w.postMessage({id,s:_json}); }catch(e){ _pkJob=null; _persistDirty=true; _persistNowSync(); }
+}
+function _persistNowSync(){
+  if(_persistTimer){clearTimeout(_persistTimer);_persistTimer=null;}
+  if(!_persistDirty&&!_pkJob)return;
+  _pkSeq++; _pkJob=null;
   _persistDirty=false;_persistFirstDirtyAt=0;
   const _json=JSON.stringify(S), _at=Date.now();
   // v2.0 — IndexedDB এ পূর্ণ কপি (আগে এই mirror কখনো লেখা হতোই না, তাই boot-এর self-heal কাজ করত না)
@@ -1861,7 +1919,7 @@ function _persistNow(){
     }
   }
 }
-function flushPersist(){_persistNow();}
+function flushPersist(){_persistNowSync();}
 function _schedulePersist(){
   _persistDirty=true;
   const now=Date.now();
@@ -2056,8 +2114,10 @@ function num(v){if(typeof v==='number')return isFinite(v)?v:0;if(v==null||v===''
 function _copyText(t,msg){const ok=()=>toast(msg||'📋 Copy হয়েছে');const fb=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok();}catch(e){toast('Copy করা গেল না — হাতে select করে copy করুন');}ta.remove();};
   try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,fb);else fb();}catch(e){fb();}}
 function r2(n){return Math.round(n*100)/100;}
-function fmt(n){return '৳'+Number(r2(n)).toLocaleString('en-IN',{maximumFractionDigits:2});}
-function fmtn(n){return Number(r2(n)).toLocaleString('en-IN',{maximumFractionDigits:2});}
+/* v3.4 — গতি: সংখ্যা/তারিখ লেখার formatter একবার বানিয়ে বারবার ব্যবহার (আগে প্রতিটা ঘরে নতুন করে বানানো হতো — বড় Sheet এ ধীর) */
+const _NF2=new Intl.NumberFormat('en-IN',{maximumFractionDigits:2});
+function fmt(n){return '৳'+_NF2.format(Number(r2(n)));}
+function fmtn(n){return _NF2.format(Number(r2(n)));}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 // Finds a signatory [role,name] pair from settings.signs by matching a keyword in the role label,
 // instead of relying on a fixed array index (which breaks the moment the signs list is reordered/edited).
@@ -2088,9 +2148,10 @@ function nextId(){
   return S.empSeq;
 }
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
-function fmtDate(d){if(!d)return '—';const x=new Date(d+'T00:00');if(isNaN(x))return d;return x.toLocaleDateString('en-GB');}
-function monthLabel(k){const[y,m]=k.split('-');return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});}
-function monthShort(k){const[y,m]=k.split('-');return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short'})+"'"+String(y).slice(2);}
+const _DFGB=new Intl.DateTimeFormat('en-GB'), _MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtDate(d){if(!d)return '—';const x=new Date(d+'T00:00');if(isNaN(x))return d;return _DFGB.format(x);}
+function monthLabel(k){const[y,m]=String(k).split('-');const i=+m-1;if(!(i>=0&&i<12)||!y)return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});return _MONL[i]+' '+(+y);}
+function monthShort(k){const[y,m]=String(k).split('-');const i=+m-1;if(!(i>=0&&i<12)||!y)return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short'})+"'"+String(y).slice(2);return _MONL[i].slice(0,3)+"'"+String(y).slice(2);}
 function daysInMonth(k){const[y,m]=k.split('-');return new Date(y,m,0).getDate();}
 
 function inWords(n){
@@ -2982,7 +3043,7 @@ function nvPages(o){ // o: {dens, top(pi,pn), tbl (colgroup+thead), rows:[], tot
   const or=o.or||'landscape', mh=_prMhPx(or), W=_prWidthPx(or);
   const box=document.createElement('div');
   box.style.cssText='position:absolute;left:-30000px;top:0;width:'+W+'px;visibility:hidden;background:#fff';
-  box.innerHTML=NV_CSS+'<div class="psheet xls'+(o.dens||'')+'"><div class="nv">'+o.top(1,1)+'<table class="nvT">'+o.tbl+'<tbody>'+o.rows.join('')+o.tot+'</tbody></table>'+o.after+'</div></div>';
+  box.innerHTML=NV_CSS+(o.css||'')+'<div class="'+(o.wrap||'')+'"><div class="psheet xls'+(o.dens||'')+'"><div class="nv">'+o.top(1,1)+'<table class="nvT">'+o.tbl+'<tbody>'+o.rows.join('')+o.tot+'</tbody></table>'+(o.after||'')+'</div></div></div>';
   document.body.appendChild(box);
   let topH=120,headH=40,rowH=[],totH=24,afterH=40;
   try{
@@ -2991,10 +3052,10 @@ function nvPages(o){ // o: {dens, top(pi,pn), tbl (colgroup+thead), rows:[], tot
     headH=th.getBoundingClientRect().height;
     rowH=trs.slice(0,o.rows.length).map(r=>r.getBoundingClientRect().height);
     totH=trs.length?trs[trs.length-1].getBoundingClientRect().height:24;
-    const sm=box.querySelector('.nvSum');afterH=sm?sm.getBoundingClientRect().height+8:0;
+    const sm=box.querySelector('.nvSum')||box.querySelector('.otWords');afterH=sm?sm.getBoundingClientRect().height+8:0;
   }catch(e){}
   box.remove();
-  const signH=34*3.78, safety=6*3.78, cap=mh-topH-headH-safety, lastExtra=totH+afterH+signH;
+  const signH=34*3.78, safety=6*3.78+(o.extra||0), cap=mh-topH-headH-safety, lastExtra=totH+afterH+signH;
   const chunks=[];let i=0;
   while(i<o.rows.length){
     let h=0,j=i; while(j<o.rows.length&&h+(rowH[j]||22)<=cap){h+=rowH[j]||22;j++;}
@@ -3050,32 +3111,76 @@ function printSalary(){
   });
   doPrint(html,'landscape');
 }
+/* ===================== v3.5 — Overtime Payment Register (সবুজ, Legal Portrait) — Salary Sheet থেকে আলাদা চেহারা ===================== */
+const OT_CSS=`<style>
+.otReg .nv .nvTop{border-bottom:3px solid #14532D;align-items:flex-start}
+.otReg .nv .nvCo{color:#14532D;font-size:24px;font-weight:700;letter-spacing:.2px}
+.otReg .nv .nvAd{font-size:12px;color:#000}
+.otReg .nv .otBox{border:2px solid #14532D;padding:6px 12px 7px;text-align:center;min-width:300px}
+.otReg .nv .otBox .t1{font-size:18px;font-weight:700;letter-spacing:1.4px;color:#14532D;line-height:1.2}
+.otReg .nv .otBox .t2{font-size:13.5px;font-weight:700;color:#000;margin-top:2px;letter-spacing:.6px}
+.otReg .nv .otBox table{border-collapse:collapse;margin:6px auto 0;font-size:12px}
+.otReg .nv .otBox td{border:1px solid #6B7F6E;padding:2px 8px;white-space:nowrap;color:#000}
+.otReg .nv .otBox td.k{background:#DCFCE7;font-weight:700}
+.otReg .nv table.nvT th,.otReg .nv table.nvT th.gE,.otReg .nv table.nvT th.gN,.otReg .nv table.nvT th.gB,.otReg .nv table.nvT th.gA{background:#14532D;color:#fff;border-color:#14532D;font-size:12px;font-weight:700;padding:6px 4px}
+.otReg .nv table.nvT th,.otReg .nv table.nvT td{border-color:#6B7F6E}
+.otReg .nv table.nvT td.net{background:#F0FDF4}
+.otReg .nv table.nvT tr.tot td{background:#14532D;border-color:#14532D;color:#fff}
+.otReg .nv table.nvT td.nm{white-space:normal;line-height:1.15}
+.otReg .nv table.nvT td.nm b{font-size:12px}.otReg .nv table.nvT td.nm span{font-size:10.5px;color:#222}
+.otReg .nv .otWords{margin-top:8px;border:1px solid #6B7F6E;padding:5px 9px;font-size:12.5px;color:#000;page-break-inside:avoid}
+.otReg .nv.nvTS .otWords{font-size:14.5px;padding:8px 11px;margin-top:12px}
+.otReg .nv.nvTS table.nvT th{font-size:14px;padding:9px 6px}
+.otReg .nv .xsign>div .ln{border-top-color:#14532D}
+</style>`;
+function otHead(sub,info){
+  const s=S.settings||{};
+  const cells=[];for(let i=0;i<info.length;i+=2){const a=info[i],b=info[i+1];cells.push(`<tr><td class="k">${a[0]}</td><td>${a[1]}</td>${b?`<td class="k">${b[0]}</td><td>${b[1]}</td>`:''}</tr>`);}
+  return `<div class="nvTop"><div><div class="nvCo">${esc(s.company||'')}</div><div class="nvAd">${esc(s.address||'')}</div></div>
+    <div class="otBox"><div class="t1">OVERTIME PAYMENT REGISTER</div><div class="t2">${sub}</div><table><tbody>${cells.join('')}</tbody></table></div></div>`;
+}
+/* OT এর কাগজ: Portrait এ নিজের আলাদা পছন্দ (না বাছলে Legal) — চিঠি/অন্য Portrait Print এর কাগজে হাত পড়ে না */
+(function(){
+  const _pp=prPaper;
+  prPaper=function(or){ if(or==='portrait'&&window._prOT){ const st=S.settings||{}; return st.printPaperOT||'legal'; } return _pp.apply(this,arguments); };
+  const _dp=doPrint;
+  doPrint=function(){ window._prOT=!!window._prOTnext; window._prOTnext=false; return _dp.apply(this,arguments); };
+})();
 function printOT(){
   if(!S.ot[otMonth]){toast('Sheet পাওয়া যায়নি');return;}
+  window._prOT=true;
+  const or='portrait';
   const sh=S.ot[otMonth];const m=byCat(otSheetEmps(sh));CATS.forEach(c=>{m[c]=catOrder(m[c],c);});
   const hasOT=e=>{const row=sh.rows[e.id];return row&&(row.imported||num(row.hrs)>0);};
-  const cats=CATS.filter(c=>(m[c]||[]).filter(hasOT).length), sheets=cats.length+1, mon=monthShort(otMonth), st=nvStatus(otMonth);
-  window._printName='OT Sheet '+mon;
-  const otInfo='Gross ÷ '+(num(S.settings.otDivisor)||((S.settings.otDays||26)*(S.settings.otHours||8)))+' / hour';
+  const cats=CATS.filter(c=>(m[c]||[]).filter(hasOT).length), sheets=cats.length+1, mon=monthShort(otMonth), monL=monthLabel(otMonth), st=nvStatus(otMonth);
+  const div=num(S.settings.otDivisor)||((S.settings.otDays||26)*(S.settings.otHours||8));
+  window._printName='OT Register '+mon;
+  const hrsTxt=r=>num(r.hrs)>0?p2(r.hrs):'—';
   const G={n:0,h:0,net:0,arr:0,tot:0};let sumRows='';
   cats.forEach((c,i)=>{const T={n:0,h:0,net:0,arr:0,tot:0};
     m[c].filter(hasOT).forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);T.n++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;});
     Object.keys(G).forEach(k=>G[k]+=T[k]);
-    sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td>${p2(T.h)}</td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
-  let html=NV_CSS+`<div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Overtime Sheet — Top Sheet',[['OT Month',mon],['Month Days',daysInMonth(otMonth)],['Employees',G.n],['OT Rate',otInfo],['Status',st],['Sheet','1 of '+sheets]])}
-    <table class="nvT"><colgroup><col style="width:5%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:14%"><col style="width:12%"></colgroup>
-    <thead><tr><th class="gE">SL</th><th class="gE">Category</th><th class="gE">Employees</th><th class="gB">OT Hours</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Remarks</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
-    <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${p2(G.h)}</td><td>${p2D(G.net)}</td><td>${p2D(G.arr)}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
-    ${nvSum([['Total OT Hours',p2(G.h)],['Arrears','Tk '+p2D(G.arr)],['Total Payable','Tk '+p2D(G.tot),'nt']],inWords(Math.round(G.tot)))}
+    sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td class="c">${T.h?p2(T.h):'—'}</td><td>${p2D(T.net)}</td><td>${T.arr?p2D(T.arr):'-'}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
+  let html=NV_CSS+OT_CSS+`<div class="otReg"><div class="psheet xls"><div class="nv nvTS">${otHead('TOP SHEET',[['Month',monL],['Employees',G.n],['Status',st],['Sheet','1 of '+sheets]])}
+    <table class="nvT"><colgroup><col style="width:6%"><col style="width:25%"><col style="width:11%"><col style="width:11%"><col style="width:13%"><col style="width:10%"><col style="width:13%"><col style="width:11%"></colgroup>
+    <thead><tr><th>SL</th><th>Category</th><th>Employees</th><th>OT Hours</th><th>OT Amount</th><th>Arrears</th><th>Net Payable</th><th>Remarks</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
+    <tbody>${sumRows}<tr class="tot"><td></td><td class="l">GRAND TOTAL</td><td class="c">${G.n}</td><td class="c">${G.h?p2(G.h):'—'}</td><td>${p2D(G.net)}</td><td>${G.arr?p2D(G.arr):'-'}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
+    <div class="otWords"><b>In Words:</b> ${inWords(Math.round(G.tot))}</div>
     ${xSign()}</div></div>`;
   cats.forEach((c,ci)=>{
     const list=m[c].filter(hasOT);const rows=[];let sl=0;const T={h:0,net:0,arr:0,tot:0};
     list.forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);sl++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;
-      rows.push(`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${p2(r.hrs)}</td><td>${p2(r.rate)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`);});
-    html+=nvPages({dens:densClass(list.length),top:(pi,pn)=>nvHead('Monthly Overtime Sheet',[['OT Month',mon],['Category',esc(c)],['OT Rate',otInfo],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl:`<colgroup><col style="width:4%"><col style="width:17%"><col style="width:13%"><col style="width:8%"><col style="width:8.5%"><col style="width:6.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:10.5%"></colgroup>
-      <thead><tr><th class="gE">SL</th><th class="gE">Name</th><th class="gE">Designation</th><th class="gE">Joined</th><th class="gB">Gross Salary</th><th class="gB">OT Hours</th><th class="gB">OT Rate</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Signature</th></tr></thead>`,rows,tot:`<tr class="tot"><td></td><td class="l" colspan="4">Total (${sl} Employees)</td><td>${p2(T.h)}</td><td></td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td>${p2D(T.tot)}</td><td></td></tr>`,after:`${nvSum([['Total OT Hours',p2(T.h)],['Arrears','Tk '+p2D(T.arr)],['Total Payable','Tk '+p2D(T.tot),'nt']],inWords(Math.round(T.tot)))}`});
+      const rate=num(r.rate)||(num(r.gross)&&div?num(r.gross)/div:0);
+      rows.push(`<tr><td class="c">${sl}</td><td class="c">${esc(e.empCode||e.id)}</td><td class="l nm"><b>${esc(e.name)}</b><br><span>${esc(e.designation||'')}</span></td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${rate?p2(rate):'-'}</td><td class="c">${hrsTxt(r)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`);});
+    const tbl=`<colgroup><col style="width:4.5%"><col style="width:6%"><col style="width:23%"><col style="width:8.5%"><col style="width:8.5%"><col style="width:7.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:9.5%"></colgroup>
+      <thead><tr><th>SL</th><th>ID</th><th>Name &amp; Designation</th><th>Joined</th><th>Gross</th><th>Rate/Hr</th><th>OT Hrs</th><th>OT Amount</th><th>Arrears</th><th>Net Payable</th><th>Signature / Thumb</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>`;
+    const tot=`<tr class="tot"><td></td><td class="l" colspan="5">Total — ${esc(c)} (${list.length})</td><td class="c">${T.h?p2(T.h):'—'}</td><td>${p2D(T.net)}</td><td>${T.arr?p2D(T.arr):'-'}</td><td>${p2D(T.tot)}</td><td></td></tr>`;
+    html+=nvPages({or,css:OT_CSS,wrap:'otReg',dens:'',extra:15*3.78,top:(pi,pn)=>otHead(esc(c),[['Month',monL],['Employees',list.length],['Rate','Gross ÷ '+div+' / hr'],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl,rows,tot,
+      after:`<div class="otWords"><b>In Words:</b> ${inWords(Math.round(T.tot))}</div>`});
   });
-  doPrint(html,'landscape');
+  html+='</div>';
+  window._prOTnext=true;
+  doPrint(html,or);
 }
 
 
@@ -3570,8 +3675,8 @@ function countUp(root){
 const _go0=go;
 go=function(v){
   const prev=cur; const r=_go0.apply(this,arguments);
-  try{ const vw=$('#view'); if(vw&&!_reduceMotion()&&prev!==cur){ vw.classList.remove('vfade'); void vw.offsetWidth; vw.classList.add('vfade'); }
-    if(prev!==cur) countUp(vw); }catch(e){}
+  try{ const vw=$('#view'); if(vw&&!_reduceMotion()&&prev!==cur&&!(window.matchMedia&&matchMedia('(max-width:760px)').matches)){ vw.classList.remove('vfade'); requestAnimationFrame(()=>vw.classList.add('vfade')); }
+    if(prev!==cur&&!(window.matchMedia&&matchMedia('(max-width:760px)').matches)) countUp(vw); }catch(e){}
   return r;
 };
 /* ---------- YEAR SUMMARY REPORT ---------- */
@@ -3859,6 +3964,19 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'3.5',d:'19 Nov 2026',t:'OT Sheet এর নতুন Print — Overtime Payment Register (Salary থেকে আলাদা)',items:[
+    'OT Print এখন সবুজ “OVERTIME PAYMENT REGISTER” — Legal Portrait কাগজে (Salary Sheet Navy রঙে Landscape) — ফাইলে রাখলে দেখেই আলাদা বোঝা যায়',
+    'Top Sheet আগের মতোই প্রথম পাতায় — Category অনুযায়ী কর্মী, OT ঘণ্টা, OT টাকা, Arrears, মোট; কথায় মোট টাকা; সই',
+    'প্রতিটা Category আলাদা Sheet: SL, ID, নাম ও পদবি (দুই লাইনে), যোগদান, Gross, প্রতি ঘণ্টার Rate, OT ঘণ্টা, OT টাকা, Arrears, Net Payable, Signature / Thumb (টাকা দেওয়ার সময় সই/টিপসই); শেষে মোট ও কথায় টাকা',
+    'শিরোনাম বড় ও গাঢ় — Print এ স্পষ্ট; সই সবসময় শেষ পাতার নিচে; একাধিক পাতা হলে “Page 1/2” ও “Continued on next page”',
+    'পুরনো (Import করা) মাসে ঘণ্টা না থাকলে OT ঘণ্টার ঘরে “—”',
+    'OT এর কাগজ নিজের আলাদা পছন্দে মনে থাকে (প্রথমবার Legal) — চিঠি বা অন্য Portrait Print এর কাগজ বদলায় না']},
+  {v:'3.4',d:'19 Nov 2026',t:'মোবাইলে Login ঠিক, উপরের মেনু বোতাম, মোবাইলে অনেক দ্রুত',items:[
+    'মোবাইলে Login পাতা Costing এর মতো: উপরে রঙিন অংশে আইকন ও “AMAZ HR” নিজের জায়গায়, তার নিচে সাদা অংশ — ছোট ফোনেও আর একটার উপর আরেকটা পড়ে না; লম্বা হলে পাতা নিচে সরানো যায়',
+    'মোবাইলে উপরে বামে ☰ মেনু বোতাম ফিরে এসেছে (Costing এর মতো) — চাপলে পাশ থেকে সব মেনু; মেনু থেকে পাতা বাছলে নিজে বন্ধ হয়; নিচের Tab Bar ও আছে',
+    'গতি — Save এর পর আটকে যাওয়া বন্ধ: পুরো ডাটা compress করা (মোবাইলে ১-৩ সেকেন্ড লাগত) এখন আলাদা Worker এ হয়, পাতা চলতে থাকে; বন্ধ/Reload এর সময় আগের মতোই সাথে সাথে পুরো সেভ',
+    'গতি — মোবাইলে blur, স্থির পটভূমি, ভারী ছায়া ও animation বন্ধ; লম্বা তালিকা শুধু দেখা অংশটুকু আঁকে; সংখ্যা/তারিখ লেখা দ্রুত (বড় Salary Sheet এ বিশেষ করে); পাতা বদলানোর সময় অপ্রয়োজনীয় পুনর্হিসাব বাদ — Dashboard খুলতে আগের চেয়ে প্রায় ৫ গুণ কম সময়',
+    'মোবাইলে Dashboard এর একা 📸 বোতাম “⋯” তে']},
   {v:'3.3',d:'19 Nov 2026',t:'Standard রং ও পুরো সফটওয়্যারের Master Scan',items:[
     'রং: বেগুনি বাদ — Standard Corporate রং: গাঢ় Navy Menu, Blue মূল বোতাম ও বাছাই, হালকা ধূসর পাতা, সাদা কার্ড; Login পাতা ও App এর আইকনও Blue; Dark Mode এ গাঢ় Navy',
     'Master Scan: সফটওয়্যারের ভেতরের আসল ইতিহাস (৪৫১ কর্মচারী, ৬৪ মাসের Salary/OT) দিয়ে সব পাতা, সব Report, শেষ ৩ মাসের Salary/OT Sheet ও Print, কর্মচারীর প্রোফাইল/ফর্ম, কর্মচারী লগইন (ESS) — কম্পিউটার ও মোবাইলে, বাংলা ও English এ, Admin / Data Entry / Viewer হিসেবে হাজারো বোতাম চাপিয়ে দেখা হয়েছে: কোনো error, NaN, undefined বা ভুল তারিখ পাওয়া যায়নি',
@@ -9231,8 +9349,9 @@ function eraseAllFresh(){
 }
 
 /* ============ PRINT ============ */
-function fmtDateP(d){if(!d)return '-';const x=new Date(d+'T00:00');if(isNaN(x))return (''+d);return x.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-');}
-function pInt(n){return Number(Math.round(num(n))).toLocaleString('en-IN');}
+const _DFP=new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'2-digit'}), _NF0=new Intl.NumberFormat('en-IN');
+function fmtDateP(d){if(!d)return '-';const x=new Date(d+'T00:00');if(isNaN(x))return (''+d);return _DFP.format(x).replace(/ /g,'-');}
+function pInt(n){return _NF0.format(Number(Math.round(num(n))));}
 // Adaptive print density: more rows => tighter layout so a category fits on one page.
 function densClass(n){n=n||0;if(n>22)return ' xdense';if(n>14)return ' dense';return '';}
 function pIntD(n){n=num(n);return n?pInt(n):'-';}
@@ -9812,7 +9931,7 @@ function doPrint(html,orientation,skipFooter){
 function _pdReadSave(){
   const or=((document.querySelector('input[name="pd_or"]:checked')||{}).value)||(_pdPending&&_pdPending.orientation)||'landscape';
   const paper=($('#pd_paper')||{}).value||prPaper(or);
-  if(!S.settings)S.settings={};const pk=or==='portrait'?'printPaperP':'printPaperL';let ch=false;
+  if(!S.settings)S.settings={};const pk=or==='portrait'?(window._prOT?'printPaperOT':'printPaperP'):'printPaperL';let ch=false;
   if(S.settings[pk]!==paper){S.settings[pk]=paper;ch=true;}
   if($('#pd_noask')&&$('#pd_noask').checked){S.settings.printAsk=false;ch=true;}
   if(ch)save();
@@ -9896,7 +10015,7 @@ function _pdGo(){
   const paper=($('#pd_paper')||{}).value||'auto';
   if(!S.settings)S.settings={};
   let ch=false;
-  const pk=or==='portrait'?'printPaperP':'printPaperL';
+  const pk=or==='portrait'?(window._prOT?'printPaperOT':'printPaperP'):'printPaperL';
   if(S.settings[pk]!==paper){S.settings[pk]=paper;ch=true;}
   if($('#pd_noask')&&$('#pd_noask').checked){S.settings.printAsk=false;ch=true;}
   if(ch)save();
@@ -13928,7 +14047,7 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   ['keydown','pointerdown','input','wheel','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{_lastAct=Date.now();},{passive:true,capture:true}));
   window._userIdleMs=()=>Date.now()-_lastAct;
 
-  function navBtns(){ return [...document.querySelectorAll('#nav button[data-v]')].filter(b=>b.style.display!=='none'&&getComputedStyle(b).display!=='none'); }
+  function navBtns(){ return [...document.querySelectorAll('#nav button[data-v]')].filter(b=>b.style.display!=='none'&&!b.hidden&&!(b.classList.contains('adminOnly')&&!(typeof _isAdmin==='function'&&_isAdmin()))); }
   function navIc(v){ const b=document.querySelector('#nav button[data-v="'+v+'"] .ic'); return b?b.innerHTML:''; }
   function navLbl(v){ const b=document.querySelector('#nav button[data-v="'+v+'"] .lbltxt'); return b?b.textContent.trim():v; }
   const EN=()=>window.LANG==='en';
@@ -14021,14 +14140,14 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
       if(!isBtn(k)) return;
       if(k===ft){ k.classList.add('mHide'); return; }
       const txt=(k.textContent||'').trim();
-      const main=k.classList.contains('gold')||k.classList.contains('primary');
+      const main=(k.classList.contains('gold')||k.classList.contains('primary'))&&((txt.match(/[A-Za-z\u0980-\u09FF]/g)||[]).length>=3);
       if(/←|Back|ফিরে/.test(txt)&&keep<2){ keep++; return; }
       if(main&&keep<1){ keep++; return; }
       k.classList.add('mHide'); hidden.push(k);
     });
     if(hidden.length===1&&keep<2&&((hidden[0].textContent||'').match(/[A-Za-z\u0980-\u09FF]/g)||[]).length>=3){ hidden[0].classList.remove('mHide'); hidden.length=0; }
     if(hidden.length){ if(more.parentNode!==ma) ma.appendChild(more); } else if(more.parentNode) more.remove();
-    const anyVis=kids.some(k=>!k.classList.contains('mHide')&&getComputedStyle(k).display!=='none')||!!more.parentNode;
+    const anyVis=kids.some(k=>!k.classList.contains('mHide')&&k.style.display!=='none')||!!more.parentNode;
     ma.classList.toggle('empty',!anyVis);
   }
   window._mLayoutActs=layoutActs;
@@ -14081,6 +14200,7 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
         b.onclick=()=>x.click(); h.insertBefore(b,h.firstChild);
       });
     });
+    any=[...document.querySelectorAll('.overlay.show')].some(o=>o.style.display!=='none');
     H.classList.toggle('m-modal',any);
     if(any) ctRun();
   }
@@ -14107,7 +14227,7 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
     const prev=cur; const r=_goM.apply(this,arguments);
     try{
       if(!_fromPop&&cur!==prev){ _stack=_stack.filter(x=>x!==cur); _stack.push(cur); if(_stack.length>20)_stack.shift(); }
-      if(isM()){ renderBnav(); placeActs(); ctRun(); if(prev!==cur){ window.scrollTo(0,0); H.classList.remove('top-hide'); } if(cur==='dash') installCard(); }
+      if(isM()){ const sd=document.getElementById('side'); if(sd&&sd.classList.contains('open')){ sd.classList.remove('open'); const bd=document.getElementById('backdrop'); if(bd) bd.classList.remove('show'); } renderBnav(); placeActs(); ctRun(); if(prev!==cur){ window.scrollTo(0,0); H.classList.remove('top-hide'); } if(cur==='dash') installCard(); }
       if(cur==='dash'&&!document.getElementById('wkCard')&&typeof weeklyCardHTML==='function'){ const v=document.getElementById('view'); const h=weeklyCardHTML(); if(v&&h){ const lb=v.querySelector('.lic-ban'); if(lb) lb.insertAdjacentHTML('afterend',h); else v.insertAdjacentHTML('afterbegin',h); } }
       else layoutActs();
     }catch(e){}
@@ -14174,7 +14294,7 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   /* ---------- ফোনের উপরের বারের রং ---------- */
   function _mTheme(){
     let m=document.querySelector('meta[name="theme-color"]'); if(!m) return;
-    const gate=document.getElementById('loginGate'), onLogin=gate&&getComputedStyle(gate).display!=='none';
+    const onLogin=!(typeof CU!=='undefined'&&CU);
     m.setAttribute('content',onLogin?'#1D4ED8':(document.body.classList.contains('light')?'#F4F6FA':'#0B1220'));
   }
   window._mTheme=_mTheme;
