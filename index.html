@@ -3168,41 +3168,45 @@ function otHead(sub,info){
   const _dp=doPrint;
   doPrint=function(){ window._prOT=!!window._prOTnext; window._prOTnext=false; return _dp.apply(this,arguments); };
 })();
+/* v3.6.1 — OT Sheet: আগের মতোই নকশা, শুধু রং আলাদা (সবুজ) — Salary Sheet (Navy) থেকে দেখেই আলাদা */
+const OTC_CSS=`<style>
+.otc .nv .nvTop{border-bottom-color:#14532D}
+.otc .nv .nvCo{color:#14532D}
+.otc .nv table.nvInfo td{border-color:#5f7a66}.otc .nv table.nvInfo td.k{background:#dcfce7}
+.otc .nv table.nvT th,.otc .nv table.nvT td{border-color:#5f7a66}
+.otc .nv table.nvT th.gE,.otc .nv table.nvT th.gN{background:#14532D;border-color:#14532D;color:#fff}
+.otc .nv table.nvT th.gB{background:#d1fae5}.otc .nv table.nvT th.gA{background:#fef3c7}.otc .nv table.nvT th.gD{background:#fee2e2}
+.otc .nv table.nvT td.net{background:#ecfdf5}
+.otc .nv table.nvT tr.tot td{background:#14532D;border-color:#14532D;color:#fff}
+.otc .nv .nvSum>div{border-color:#5f7a66}.otc .nv .nvSum .nt{background:#14532D;border-color:#14532D}
+</style>`;
 function printOT(){
   if(!S.ot[otMonth]){toast('Sheet পাওয়া যায়নি');return;}
-  window._prOT=true;
-  const or='portrait';
   const sh=S.ot[otMonth];const m=byCat(otSheetEmps(sh));CATS.forEach(c=>{m[c]=catOrder(m[c],c);});
   const hasOT=e=>{const row=sh.rows[e.id];return row&&(row.imported||num(row.hrs)>0);};
-  const cats=CATS.filter(c=>(m[c]||[]).filter(hasOT).length), sheets=cats.length+1, mon=monthShort(otMonth), monL=monthLabel(otMonth), st=nvStatus(otMonth);
-  const div=num(S.settings.otDivisor)||((S.settings.otDays||26)*(S.settings.otHours||8));
-  window._printName='OT Register '+mon;
-  const hrsTxt=r=>num(r.hrs)>0?p2(r.hrs):'—';
+  const cats=CATS.filter(c=>(m[c]||[]).filter(hasOT).length), sheets=cats.length+1, mon=monthShort(otMonth), st=nvStatus(otMonth);
+  window._printName='OT Sheet '+mon;
+  const otInfo='Gross ÷ '+(num(S.settings.otDivisor)||((S.settings.otDays||26)*(S.settings.otHours||8)))+' / hour';
   const G={n:0,h:0,net:0,arr:0,tot:0};let sumRows='';
   cats.forEach((c,i)=>{const T={n:0,h:0,net:0,arr:0,tot:0};
     m[c].filter(hasOT).forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);T.n++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;});
     Object.keys(G).forEach(k=>G[k]+=T[k]);
-    sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td class="c">${T.h?p2(T.h):'—'}</td><td>${p2D(T.net)}</td><td>${T.arr?p2D(T.arr):'-'}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
-  let html=NV_CSS+OT_CSS+`<div class="otReg"><div class="psheet xls"><div class="nv nvTS">${otHead('TOP SHEET',[['Month',monL],['Employees',G.n],['Status',st],['Sheet','1 of '+sheets]])}
-    <table class="nvT"><colgroup><col style="width:6%"><col style="width:25%"><col style="width:11%"><col style="width:11%"><col style="width:13%"><col style="width:10%"><col style="width:13%"><col style="width:11%"></colgroup>
-    <thead><tr><th>SL</th><th>Category</th><th>Employees</th><th>OT Hours</th><th>OT Amount</th><th>Arrears</th><th>Net Payable</th><th>Remarks</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
-    <tbody>${sumRows}<tr class="tot"><td></td><td class="l">GRAND TOTAL</td><td class="c">${G.n}</td><td class="c">${G.h?p2(G.h):'—'}</td><td>${p2D(G.net)}</td><td>${G.arr?p2D(G.arr):'-'}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
-    <div class="otWords"><b>In Words:</b> ${inWords(Math.round(G.tot))}</div>
+    sumRows+=`<tr><td class="c">${i+1}</td><td class="l">${esc(c)}</td><td class="c">${T.n}</td><td>${p2(T.h)}</td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td class="net">${p2D(T.tot)}</td><td></td></tr>`;});
+  let html=NV_CSS+OTC_CSS+`<div class="otc"><div class="psheet xls"><div class="nv nvTS">${nvHead('Monthly Overtime Sheet — Top Sheet',[['OT Month',mon],['Month Days',daysInMonth(otMonth)],['Employees',G.n],['OT Rate',otInfo],['Status',st],['Sheet','1 of '+sheets]])}
+    <table class="nvT"><colgroup><col style="width:5%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:13%"><col style="width:11%"><col style="width:14%"><col style="width:12%"></colgroup>
+    <thead><tr><th class="gE">SL</th><th class="gE">Category</th><th class="gE">Employees</th><th class="gB">OT Hours</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Remarks</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>
+    <tbody>${sumRows}<tr class="tot"><td></td><td class="l">Total</td><td class="c">${G.n}</td><td>${p2(G.h)}</td><td>${p2D(G.net)}</td><td>${p2D(G.arr)}</td><td>${p2D(G.tot)}</td><td></td></tr></tbody></table>
+    ${nvSum([['Total OT Hours',p2(G.h)],['Arrears','Tk '+p2D(G.arr)],['Total Payable','Tk '+p2D(G.tot),'nt']],inWords(Math.round(G.tot)))}
     ${xSign()}</div></div>`;
   cats.forEach((c,ci)=>{
     const list=m[c].filter(hasOT);const rows=[];let sl=0;const T={h:0,net:0,arr:0,tot:0};
     list.forEach(e=>{const r=otCalc(e,sh.rows[e.id],otMonth);sl++;T.h+=num(r.hrs);T.net+=r.net;T.arr+=r.arrears;T.tot+=r.total;
-      const rate=num(r.rate)||(num(r.gross)&&div?num(r.gross)/div:0);
-      rows.push(`<tr><td class="c">${sl}</td><td class="c">${esc(e.empCode||e.id)}</td><td class="l nm"><b>${esc(e.name)}</b><br><span>${esc(e.designation||'')}</span></td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${rate?p2(rate):'-'}</td><td class="c">${hrsTxt(r)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`);});
-    const tbl=`<colgroup><col style="width:4.5%"><col style="width:6%"><col style="width:23%"><col style="width:8.5%"><col style="width:8.5%"><col style="width:7.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:9.5%"></colgroup>
-      <thead><tr><th>SL</th><th>ID</th><th>Name &amp; Designation</th><th>Joined</th><th>Gross</th><th>Rate/Hr</th><th>OT Hrs</th><th>OT Amount</th><th>Arrears</th><th>Net Payable</th><th>Signature / Thumb</th></tr></thead><tfoot class="nvSpF"><tr><td class="nvSp" colspan="30"></td></tr></tfoot>`;
-    const tot=`<tr class="tot"><td></td><td class="l" colspan="5">Total — ${esc(c)} (${list.length})</td><td class="c">${T.h?p2(T.h):'—'}</td><td>${p2D(T.net)}</td><td>${T.arr?p2D(T.arr):'-'}</td><td>${p2D(T.tot)}</td><td></td></tr>`;
-    html+=nvPages({or,css:OT_CSS,wrap:'otReg',dens:'',extra:15*3.78,top:(pi,pn)=>otHead(esc(c),[['Month',monL],['Employees',list.length],['Rate','Gross ÷ '+div+' / hr'],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl,rows,tot,
-      after:`<div class="otWords"><b>In Words:</b> ${inWords(Math.round(T.tot))}</div>`});
+      rows.push(`<tr><td class="c">${sl}</td><td class="l">${esc(e.name)}</td><td class="l">${esc(e.designation||'')}</td><td class="c">${fmtDateP(e.join)}</td><td>${p2D(r.gross)}</td><td>${p2(r.hrs)}</td><td>${p2(r.rate)}</td><td>${p2D(r.net)}</td><td>${num(r.arrears)?p2D(r.arrears):'-'}</td><td class="net">${p2D(r.total)}</td><td></td></tr>`);});
+    html+=nvPages({dens:densClass(list.length),top:(pi,pn)=>nvHead('Monthly Overtime Sheet',[['OT Month',mon],['Category',esc(c)],['OT Rate',otInfo],['Employees',list.length],['Status',st],['Sheet',(ci+2)+' of '+sheets+(pn>1?' · Page '+pi+'/'+pn:'')]]),tbl:`<colgroup><col style="width:4%"><col style="width:17%"><col style="width:13%"><col style="width:8%"><col style="width:8.5%"><col style="width:6.5%"><col style="width:6.5%"><col style="width:9%"><col style="width:7.5%"><col style="width:9.5%"><col style="width:10.5%"></colgroup>
+      <thead><tr><th class="gE">SL</th><th class="gE">Name</th><th class="gE">Designation</th><th class="gE">Joined</th><th class="gB">Gross Salary</th><th class="gB">OT Hours</th><th class="gB">OT Rate</th><th class="gA">OT Amount</th><th class="gA">Arrears</th><th class="gN">Total Payable</th><th class="gE">Signature</th></tr></thead>`,rows,tot:`<tr class="tot"><td></td><td class="l" colspan="4">Total (${sl} Employees)</td><td>${p2(T.h)}</td><td></td><td>${p2D(T.net)}</td><td>${p2D(T.arr)}</td><td>${p2D(T.tot)}</td><td></td></tr>`,after:`${nvSum([['Total OT Hours',p2(T.h)],['Arrears','Tk '+p2D(T.arr)],['Total Payable','Tk '+p2D(T.tot),'nt']],inWords(Math.round(T.tot)))}`});
   });
   html+='</div>';
-  window._prOTnext=true;
-  doPrint(html,or);
+  doPrint(html,'landscape');
 }
 
 
@@ -3986,6 +3990,11 @@ function _ovGuardOk(){
 
 /* ===== v2.0 — Version ও Changelog (নতুন build দিলে এখানে সবার উপরে একটা entry যোগ করুন) ===== */
 const CHANGELOG=[
+  {v:'3.6.1',d:'19 Nov 2026',t:'OT Sheet এর Print আগের নকশায় ফেরত — শুধু রং সবুজ',items:[
+    'OT Sheet এর Print আবার আগের মতো (Top Sheet + প্রতিটা Category আলাদা Sheet, Landscape, একই কলাম ও সারাংশ) — v3.5 এর নতুন Register নকশা বাদ',
+    'শুধু রং বদল: Navy এর জায়গায় গাঢ় সবুজ — শিরোনাম, টেবিলের মাথা, মোট সারি ও Net Payable বাক্স; তাই Salary Sheet (Navy) আর OT Sheet (সবুজ) ফাইলে দেখেই আলাদা',
+    'ভাষা ঠিক করা হলো: বাংলা বাছলে মেনু, শিরোনাম, বাটন, লেবেল সব বাংলায় (আগে অর্ধেক ইংরেজি থেকে যেত); English বাছলে পুরো ইংরেজি — Dashboard এর Insight বাক্যও এখন সঠিক ইংরেজিতে',
+    'কর্মচারীর নাম, পদবী, আপনার লেখা ডাটা ও সব Print/PDF আগের মতোই থাকে (Print সবসময় English)']},
   {v:'3.6',d:'19 Nov 2026',t:'Print / PDF এক চাপে (Costing এর মতো) ও মোবাইলের ছোট ভুল ঠিক',items:[
     'প্রতিটা Print এর পাশে “PDF” — Print / Export মেনুতে (Salary, OT, Payslip, Bank Sheet, Report…) আর পাতার উপরের Print বোতামের পাশে; চাপলে কোনো প্রশ্ন ছাড়াই সাথে সাথে PDF — শেষবার বাছা কাগজ ও দিক মনে রাখে',
     'মোবাইলে PDF তৈরি হলে নিচে ছোট বাক্স: Download · Share (WhatsApp/Drive/Email) · Open',
@@ -4351,7 +4360,7 @@ function computeInsights(){
       const pct=((cNet-pNet)/pNet*100);
       if(Math.abs(pct)>=0.05){
         insights.push({icon:pct>0?'📈':'📉',tone:Math.abs(pct)>=8?(pct>0?'warn':'good'):'good',
-          text:`${monthShort(curK)} মাসে মোট বেতন খরচ ${monthShort(prevK)} এর চেয়ে ${Math.abs(pct).toFixed(1)}% ${pct>0?'বেড়েছে':'কমেছে'} (${fmt(pNet)} → ${fmt(cNet)})`});
+          text:(window.LANG==='en'?`Total salary cost in ${monthShort(curK)} ${pct>0?'rose':'fell'} ${Math.abs(pct).toFixed(1)}% vs ${monthShort(prevK)} (${fmt(pNet)} → ${fmt(cNet)})`:`${monthShort(curK)} মাসে মোট বেতন খরচ ${monthShort(prevK)} এর চেয়ে ${Math.abs(pct).toFixed(1)}% ${pct>0?'বেড়েছে':'কমেছে'} (${fmt(pNet)} → ${fmt(cNet)})`)});
       }
     }
   }
@@ -4364,7 +4373,7 @@ function computeInsights(){
       const pct=((cOT-pOT)/pOT*100);
       if(Math.abs(pct)>=0.05){
         insights.push({icon:pct>0?'⏱️':'✅',tone:Math.abs(pct)>=15?(pct>0?'danger':'good'):'good',
-          text:`${monthShort(curK)} মাসে OT খরচ ${monthShort(prevK)} এর চেয়ে ${Math.abs(pct).toFixed(1)}% ${pct>0?'বেড়েছে':'কমেছে'} (${fmt(pOT)} → ${fmt(cOT)})`});
+          text:(window.LANG==='en'?`OT cost in ${monthShort(curK)} ${pct>0?'rose':'fell'} ${Math.abs(pct).toFixed(1)}% vs ${monthShort(prevK)} (${fmt(pOT)} → ${fmt(cOT)})`:`${monthShort(curK)} মাসে ওটি খরচ ${monthShort(prevK)} এর চেয়ে ${Math.abs(pct).toFixed(1)}% ${pct>0?'বেড়েছে':'কমেছে'} (${fmt(pOT)} → ${fmt(cOT)})`)});
       }
     }
   }
@@ -9244,12 +9253,12 @@ function _signLblSave(el){
   if(!v){el.value=s.signs[idx][0];return;} // don't allow saving an empty heading
   s.signs[idx][0]=v;save();toast('✅ Heading আপডেট হয়েছে — Salary Sheet/Letter প্রিন্টে এখনই দেখা যাবে');
 }
-function saveSettings(){const s=S.settings;s.company=$('#s_co').value;s.address=$('#s_addr').value;
+function saveSettings(){const s=S.settings;if($('#s_co'))s.company=$('#s_co').value;if($('#s_addr'))s.address=$('#s_addr').value;
   if($('#s_tin'))s.tin=$('#s_tin').value.trim();
   if($('#s_circle'))s.circle=$('#s_circle').value.trim();
   if($('#s_zone'))s.zone=$('#s_zone').value.trim();
-  s.split={basic:num($('#s_b').value),rent:num($('#s_r').value),conv:num($('#s_c').value),med:num($('#s_m').value)};
-  s.otDays=num($('#s_otd').value)||26;s.otHours=num($('#s_oth').value)||8;s.otDivisor=s.otDays*s.otHours||208;
+  if($('#s_b')&&$('#s_r')&&$('#s_c')&&$('#s_m'))s.split={basic:num($('#s_b').value),rent:num($('#s_r').value),conv:num($('#s_c').value),med:num($('#s_m').value)};
+  if($('#s_otd')&&$('#s_oth')){s.otDays=num($('#s_otd').value)||26;s.otHours=num($('#s_oth').value)||8;s.otDivisor=s.otDays*s.otHours||208;}
   if($('#s_session'))S.sessionTimeout=num($('#s_session').value)||30;
   if($('#s_paper'))s.printPaperL=$('#s_paper').value;if($('#s_paperP'))s.printPaperP=$('#s_paperP').value;if($('#s_printQr'))s.printQr=$('#s_printQr').checked;if($('#s_printPageNo'))s.printPageNo=$('#s_printPageNo').checked;if($('#s_printAsk'))s.printAsk=$('#s_printAsk').checked;
   document.querySelectorAll('#signWrap input[data-si]').forEach(inp=>{s.signs[+inp.dataset.si][1]=inp.value;});
@@ -14769,7 +14778,42 @@ document.addEventListener('keydown',e=>{
   }
   window.trEN=tr;
   window.L2=function(bn,en){ return LANG==='en'?(en!=null?en:tr(bn)):bn; };
-  if(LANG!=='en') return;
+
+  /* v3.6.1 — বাংলা বাছলে পুরো পর্দা বাংলা: মেনু, শিরোনাম, বাটন, লেবেল — ইংরেজি UI শব্দ বাংলায়।
+     নাম/পদবী/ডাটা, ইনপুটের মান ও Print (#printArea) বদলায় না। PDF, ID, NID, TDS, PF, SMS ইত্যাদি সংক্ষেপ যেমন আছে তেমন। */
+  if(LANG!=='en'){
+    var BD={"Dashboard":"ড্যাশবোর্ড","Overview":"সারসংক্ষেপ","Employees":"কর্মচারী","Employee":"কর্মচারী","Employee Management":"কর্মচারী ব্যবস্থাপনা","Salary Sheet":"বেতন শিট","Salary Sheets":"বেতন শিট","OT Sheet":"ওটি শিট","OT Sheets":"ওটি শিট","Attendance":"হাজিরা","Bonus Sheet":"বোনাস শিট","Bonus Sheets":"বোনাস শিট","Increment":"ইনক্রিমেন্ট","Increment Sheet":"ইনক্রিমেন্ট শিট","Increment Sheets":"ইনক্রিমেন্ট শিট","Deposit":"ডিপোজিট","Advance / Loan":"অগ্রিম / ঋণ","Advance/Loan":"অগ্রিম/ঋণ","Leave / ছুটি":"ছুটি","Leave":"ছুটি","Notice Board":"নোটিশ বোর্ড","Reports":"রিপোর্ট","Report":"রিপোর্ট","User Panel":"ইউজার প্যানেল","Settings":"সেটিংস","Main":"প্রধান","Payroll":"পে-রোল","Finance & HR":"ফাইন্যান্স ও এইচআর","System":"সিস্টেম","PAYROLL SYSTEM":"পে-রোল সিস্টেম","Payroll System":"পে-রোল সিস্টেম","Users":"ইউজার","User":"ইউজার","Roles":"রোল","Role":"রোল","Login History":"লগইন ইতিহাস","User Management":"ইউজার ব্যবস্থাপনা","Recovery Key":"রিকভারি কী","Users & access control":"ইউজার ও অ্যাক্সেস নিয়ন্ত্রণ","Company & payroll config":"কোম্পানি ও পে-রোল সেটিং","Employee & Payroll":"কর্মচারী ও পে-রোল","Insights":"ইনসাইট","Reminder":"রিমাইন্ডার","Current Workers":"বর্তমান কর্মী","Current Workers (বর্তমান)":"বর্তমান কর্মী","Factory Admin":"ফ্যাক্টরি অ্যাডমিন","Permanent":"স্থায়ী","Casual":"অস্থায়ী","Permanent Worker":"স্থায়ী শ্রমিক","Casual Worker":"অস্থায়ী শ্রমিক","Factory Security":"ফ্যাক্টরি সিকিউরিটি","Workers Paid":"বেতন পেয়েছেন","Gross Salary":"গ্রস বেতন","Gross":"গ্রস","Payable Salary":"প্রদেয় বেতন","OT Payable":"প্রদেয় ওটি","Total Payable":"সর্বমোট প্রদেয়","Salary+OT":"বেতন+ওটি","Salary + OT":"বেতন + ওটি","Last Month":"গত মাস","Probation":"প্রবেশন","Confirmation":"স্থায়ীকরণ","Category-wise Breakdown":"ক্যাটাগরি অনুযায়ী বিভাজন","Section-wise":"সেকশন অনুযায়ী","No Section":"সেকশন নেই","Dashboard Snapshot":"ড্যাশবোর্ড স্ন্যাপশট","Trend":"ট্রেন্ড","Loan / Advance":"ঋণ / অগ্রিম","Net Payable":"নিট প্রদেয়","Net Pay":"নিট বেতন","Net":"নিট","Net Total":"নিট মোট","Monthly attendance-based salary":"মাসিক হাজিরা-ভিত্তিক বেতন","Overtime payable":"প্রদেয় ওভারটাইম","Overtime":"ওভারটাইম","Festival":"উৎসব","fixed bonus":"নির্দিষ্ট বোনাস","Salary raise":"বেতন বৃদ্ধি","increment history":"ইনক্রিমেন্ট ইতিহাস","Effective Month":"কার্যকর মাস","worker list":"কর্মী তালিকা","current salary":"বর্তমান বেতন","Total Deposited":"মোট জমা","Due":"বাকি","EMI":"কিস্তি","HR Approval":"এইচআর অনুমোদন","Month to Month":"মাস থেকে মাস","Rejected":"বাতিল","Workflow":"কার্যধারা","Submit":"জমা দিন","Worker sign":"শ্রমিকের সই","Factory HR":"ফ্যাক্টরি এইচআর","Head of HR":"হেড অব এইচআর","Factory Manager":"ফ্যাক্টরি ম্যানেজার","Manager":"ম্যানেজার","Print":"প্রিন্ট","print":"প্রিন্ট","Print / Export":"প্রিন্ট / এক্সপোর্ট","Print/Export":"প্রিন্ট/এক্সপোর্ট","Export":"এক্সপোর্ট","export":"এক্সপোর্ট","Import":"ইমপোর্ট","import":"ইমপোর্ট","PDF Download":"PDF ডাউনলোড","Download":"ডাউনলোড","History":"ইতিহাস","Docs":"ডকুমেন্ট","Bonus":"বোনাস","Settle":"নিষ্পত্তি","Merge":"একত্র","merge":"একত্র","Final Settlement":"চূড়ান্ত নিষ্পত্তি","Save":"সংরক্ষণ","save":"সেভ","Save Only":"শুধু সংরক্ষণ","Save & Print Slip":"সংরক্ষণ ও স্লিপ প্রিন্ট","Edit":"সম্পাদনা","Delete":"মুছুন","Add":"যোগ","View":"দেখুন","Close":"বন্ধ","Cancel":"বাতিল","Search":"খুঁজুন","Search (Ctrl+K)":"খুঁজুন (Ctrl+K)","Full Screen":"ফুল স্ক্রিন","Dark Mode":"ডার্ক মোড","Light Mode":"লাইট মোড","Logout":"লগআউট","Login":"লগইন","Menu":"মেনু","Reload":"রিলোড","Refresh":"রিফ্রেশ","Restore":"ফেরত আনুন","restore":"ফেরত আনা","Reset":"রিসেট","Erase All":"সব মুছুন","Backup":"ব্যাকআপ","backup":"ব্যাকআপ","Auto backup":"অটো ব্যাকআপ","Copy Code":"কোড কপি","Approve":"অনুমোদন","Approved":"অনুমোদিত","Pending":"অপেক্ষমাণ","Paid back":"পরিশোধিত","Lock":"লক","Lock / Close":"লক / বন্ধ","Activate":"চালু করুন","Select":"বাছুন","Deselect":"বাদ দিন","Send":"পাঠান","Status":"অবস্থা","Category":"ক্যাটাগরি","Section":"সেকশন","Department":"বিভাগ","Designation":"পদবী","Action":"কাজ","Total":"মোট","total":"মোট","Rate":"হার","Arrears":"বকেয়া","Basic":"মূল বেতন","House Rent":"বাড়ি ভাড়া","Conveyance":"যাতায়াত","Medical":"চিকিৎসা","Basic/Rent/Conv/Med":"মূল/ভাড়া/যাতায়াত/চিকিৎসা","Gross/Rate":"গ্রস/হার","Gross/Month":"গ্রস/মাস","Basic Salary":"মূল বেতন","Salary":"বেতন","salary":"বেতন","Advance":"অগ্রিম","Loan":"ঋণ","Payslip":"পে-স্লিপ","Statement":"বিবরণী","Certificate":"সার্টিফিকেট","Letter":"চিঠি","Absent":"অনুপস্থিত","Present":"উপস্থিত","Active":"সক্রিয়","active":"সক্রিয়","Inactive":"নিষ্ক্রিয়","inactive":"নিষ্ক্রিয়","Holiday":"ছুটির দিন","Holiday Allw":"ছুটির ভাতা","Attend":"হাজিরা","Absent Sal":"অনুপস্থিতি কর্তন","Payable":"প্রদেয়","In Time":"প্রবেশ সময়","Out Time":"বের হওয়ার সময়","In/Out":"প্রবেশ/বের","Extra":"অতিরিক্ত","OT Hrs":"ওটি ঘণ্টা","OT Hours":"ওটি ঘণ্টা","OT Rate":"ওটি রেট","OT Amount":"ওটি টাকা","OT":"ওটি","GRAND TOTAL":"সর্বমোট","Grand Total":"সর্বমোট","In words":"কথায়","Permission":"অনুমতি","Permissions":"অনুমতি","Page Permissions":"পাতার অনুমতি","Document Permissions":"ডকুমেন্টের অনুমতি","Access":"অ্যাক্সেস","access":"অ্যাক্সেস","Portrait":"পোর্ট্রেট","Landscape":"ল্যান্ডস্কেপ","Paper size":"কাগজের মাপ","More settings":"আরও সেটিং","Scale":"স্কেল","Default":"ডিফল্ট","Legal":"লিগ্যাল","Username":"ইউজারনেম","Password":"পাসওয়ার্ড","Show/Hide password":"পাসওয়ার্ড দেখান/লুকান","Remember me":"মনে রাখুন","Welcome back":"আবার স্বাগতম","Sign in to continue":"চালিয়ে যেতে লগইন করুন","Human Resource &":"মানবসম্পদ ও","Payroll Management":"পে-রোল ব্যবস্থাপনা","Employee Records":"কর্মচারীর রেকর্ড","Attendance & OT":"হাজিরা ও ওটি","Salary & Payslip":"বেতন ও পে-স্লিপ","Leave & Loan":"ছুটি ও ঋণ","Bank Disbursement":"ব্যাংকে বেতন প্রদান","Reports & Analytics":"রিপোর্ট ও বিশ্লেষণ","Role-based Access":"রোল-ভিত্তিক অ্যাক্সেস","Cloud Backup":"ক্লাউড ব্যাকআপ","Audit Log":"অডিট লগ","Audit Log Export":"অডিট লগ এক্সপোর্ট","Cloud Setup":"ক্লাউড সেটআপ","Cloud Sync":"ক্লাউড সিঙ্ক","Cloud Sync status":"ক্লাউড সিঙ্ক অবস্থা","Cloud":"ক্লাউড","cloud":"ক্লাউড","Sync":"সিঙ্ক","sync":"সিঙ্ক","Syncing":"সিঙ্ক হচ্ছে","Cloud Snapshot":"ক্লাউড স্ন্যাপশট","device":"ডিভাইস","Device":"ডিভাইস","Connected Devices":"সংযুক্ত ডিভাইস","data":"ডাটা","Data":"ডাটা","browser":"ব্রাউজার","browser cache":"ব্রাউজার ক্যাশ","browser storage":"ব্রাউজার স্টোরেজ","browser/device":"ব্রাউজার/ডিভাইস","browser data/cache":"ব্রাউজার ডাটা/ক্যাশ","software":"সফটওয়্যার","provider":"প্রোভাইডার","Provider":"প্রোভাইডার","config":"কনফিগ","setup":"সেটআপ","snapshot":"স্ন্যাপশট","automatic":"স্বয়ংক্রিয়","automatically":"স্বয়ংক্রিয়ভাবে","Admin":"অ্যাডমিন","admin":"অ্যাডমিন","Trial":"ট্রায়াল","License":"লাইসেন্স","License Key":"লাইসেন্স কী","License key":"লাইসেন্স কী","Client":"ক্লায়েন্ট","Key":"কী","Company Info":"কোম্পানির তথ্য","Company Name":"কোম্পানির নাম","Address":"ঠিকানা","Tax Circle":"কর সার্কেল","Tax Zone":"কর জোন","Company e-TIN":"কোম্পানির e-TIN","Salary Split":"বেতন বিভাজন","Days":"দিন","Hours/day":"ঘণ্টা/দিন","Provident Fund & Gratuity":"প্রভিডেন্ট ফান্ড ও গ্র্যাচুইটি","Provident Fund":"প্রভিডেন্ট ফান্ড","Gratuity":"গ্র্যাচুইটি","Employee Contribution":"কর্মচারীর অংশ","Company Contribution":"কোম্পানির অংশ","Eligible":"যোগ্য","Eligibility":"যোগ্যতা","Net Salary":"নিট বেতন","Security Settings":"নিরাপত্তা সেটিং","Session Timeout":"সেশন টাইমআউট","auto logout":"অটো লগআউট","activity":"কার্যকলাপ","Print Settings":"প্রিন্ট সেটিং","Signature Row":"স্বাক্ষর সারি","Landscape Print":"ল্যান্ডস্কেপ প্রিন্ট","Portrait Print":"পোর্ট্রেট প্রিন্ট","Page":"পাতা","Auto":"অটো","table":"টেবিল","compact":"ছোট","Leave Policy":"ছুটির নীতিমালা","Casual Leave":"নৈমিত্তিক ছুটি","Sick Leave":"অসুস্থতার ছুটি","Maternity Leave":"মাতৃত্বকালীন ছুটি","Maternity":"মাতৃত্বকালীন","Earned":"অর্জিত","Casual (CL)":"নৈমিত্তিক (CL)","Sick (SL)":"অসুস্থতা (SL)","Earned (EL)":"অর্জিত (EL)","Leave Balance":"ছুটির হিসাব","Opening EL":"শুরুর EL","Opening":"শুরুর জমা","Biometric":"বায়োমেট্রিক","Fingerprint":"ফিঙ্গারপ্রিন্ট","Punch":"পাঞ্চ","Machine ID":"মেশিন ID","User ID":"ইউজার ID","Employee ID":"কর্মচারী ID","Attendance Log":"হাজিরা লগ","Punch Record":"পাঞ্চ রেকর্ড","Holiday Calendar":"ছুটির ক্যালেন্ডার","HR Signature":"এইচআর স্বাক্ষর","Leave slip":"ছুটির স্লিপ","Approval Flow":"অনুমোদন প্রবাহ","Sign":"সই","Worker":"শ্রমিক","Import History":"ইতিহাস ইমপোর্ট","Web App URL":"ওয়েব অ্যাপ URL","Secret Key":"সিক্রেট কী","Test Connection":"সংযোগ পরীক্ষা","Pull from Cloud":"ক্লাউড থেকে আনুন","Push to Cloud":"ক্লাউডে পাঠান","Force Pull":"জোর করে আনুন","Enable Auto-sync":"অটো-সিঙ্ক চালু করুন","Auto-sync":"অটো-সিঙ্ক","Auto Backup Interval":"অটো ব্যাকআপের ব্যবধান","Backup interval":"ব্যাকআপের ব্যবধান","record-level merge":"রেকর্ড-ভিত্তিক একত্রীকরণ","Version History":"ভার্সন ইতিহাস","Restore Point":"রিস্টোর পয়েন্ট","Salary Months":"বেতনের মাস","Sync Debug Log":"সিঙ্ক ডিবাগ লগ","Recycle Bin":"রিসাইকেল বিন","SMS Gateway":"SMS গেটওয়ে","Sender ID":"প্রেরক ID","Excel / CSV Export":"এক্সেল / CSV এক্সপোর্ট","CSV Export":"CSV এক্সপোর্ট","Excel":"এক্সেল","Profile":"প্রোফাইল","Service Book":"সার্ভিস বুক","Heading":"শিরোনাম","Joining Date":"যোগদানের তারিখ","Last Working Day":"শেষ কর্মদিবস","Group By":"গ্রুপ করুন","Custom Report Builder":"কাস্টম রিপোর্ট তৈরি","Male":"পুরুষ","Female":"নারী","Gender":"লিঙ্গ","Department-wise Summary":"বিভাগভিত্তিক সারাংশ","Category-wise Summary":"ক্যাটাগরিভিত্তিক সারাংশ","Department-wise Cost":"বিভাগভিত্তিক খরচ","Employee list":"কর্মচারী তালিকা","Employee List":"কর্মচারী তালিকা","Employee Turnover Report":"কর্মচারী টার্নওভার রিপোর্ট","Turnover Rate":"টার্নওভার হার","turnover rate":"টার্নওভার হার","Turnover Trend":"টার্নওভার ট্রেন্ড","Turnover trend":"টার্নওভার ট্রেন্ড","Section-wise Headcount":"সেকশনভিত্তিক জনবল","Leave Balance Report":"ছুটির হিসাব রিপোর্ট","Increment History":"ইনক্রিমেন্ট ইতিহাস","Increment History Report":"ইনক্রিমেন্ট ইতিহাস রিপোর্ট","Payroll Summary":"পে-রোল সারাংশ","Year Summary":"বছরের সারাংশ","TDS Challan Report":"TDS চালান রিপোর্ট","TDS Challan":"TDS চালান","Advanced Analytics":"উন্নত বিশ্লেষণ","Payroll Cost Trend":"পে-রোল খরচের ট্রেন্ড","Turnover Data Checker":"টার্নওভার ডাটা যাচাই","Data Conflict Checker":"ডাটা দ্বন্দ্ব যাচাই","Total amount":"মোট টাকা","Average increment":"গড় ইনক্রিমেন্ট","Performance":"পারফরম্যান্স","Promotion":"পদোন্নতি","Gross Bill":"গ্রস বিল","OT Bill":"ওটি বিল","Bonus Bill":"বোনাস বিল","Deductions":"কর্তন","Challan":"চালান","Treasury Challan":"ট্রেজারি চালান","Chalan No":"চালান নং","Deposit Date":"জমার তারিখ","TDS Amount":"TDS টাকা","Applied":"প্রয়োগকৃত","PF Fund":"PF ফান্ড","Total Balance":"মোট ব্যালেন্স","Salary Data":"বেতনের ডাটা","OT Data":"ওটি ডাটা","Leave Records":"ছুটির রেকর্ড","Loan Records":"ঋণের রেকর্ড","Bonus Records":"বোনাসের রেকর্ড","Daily Attendance Report":"দৈনিক হাজিরা রিপোর্ট","Data Entry":"ডাটা এন্ট্রি","Bonus Approval":"বোনাস অনুমোদন","Increment Salary":"ইনক্রিমেন্ট বেতন","Bonus Print":"বোনাস প্রিন্ট","Document":"ডকুমেন্ট","Salary Certificate":"বেতন সার্টিফিকেট","Experience Certificate":"অভিজ্ঞতা সনদ","Appointment Letter":"নিয়োগপত্র","Show Cause Notice":"কারণ দর্শানো নোটিশ","Termination Letter":"অব্যাহতিপত্র","Promotion Letter":"পদোন্নতিপত্র","HR Executive":"এইচআর এক্সিকিউটিভ","Month Days":"মাসের দিন","Slip Print":"স্লিপ প্রিন্ট","Half-day":"অর্ধদিবস","Powered by":"পরিচালনায়","Row":"সারি","module":"মডিউল","Checker":"যাচাই","left":"বাকি","Due Amount":"বাকি টাকা","January":"জানুয়ারি","February":"ফেব্রুয়ারি","March":"মার্চ","April":"এপ্রিল","May":"মে","June":"জুন","July":"জুলাই","August":"আগস্ট","September":"সেপ্টেম্বর","October":"অক্টোবর","November":"নভেম্বর","December":"ডিসেম্বর","Monday":"সোমবার","Tuesday":"মঙ্গলবার","Wednesday":"বুধবার","Thursday":"বৃহস্পতিবার","Friday":"শুক্রবার","Saturday":"শনিবার","Sunday":"রবিবার","Name":"নাম","Phone":"ফোন","Mobile":"মোবাইল","Email":"ইমেইল","Date":"তারিখ","Month":"মাস","Year":"বছর","Amount":"টাকা","Note":"নোট","Notes":"নোট","Remarks":"মন্তব্য","Reason":"কারণ","Type":"ধরন","Yes":"হ্যাঁ","No":"না","OK":"ঠিক আছে","Next":"পরবর্তী","Back":"ফিরে যান","Previous":"পূর্ববর্তী","Done":"সম্পন্ন","Help":"সাহায্য","Notifications":"নোটিফিকেশন","Today":"আজ","Signature":"স্বাক্ষর","Joined":"যোগদান","Join Date":"যোগদানের তারিখ","Working Days":"কর্মদিবস","Present Days":"উপস্থিত দিন","Absent Days":"অনুপস্থিত দিন","Leave Days":"ছুটির দিন","Deduction":"কর্তন","Allowance":"ভাতা","Approve All":"সব অনুমোদন","Reject":"বাতিল করুন","Pay":"প্রদান","Paid":"প্রদত্ত","Unpaid":"অপ্রদত্ত","Balance":"ব্যালেন্স","Installment":"কিস্তি","Notice":"নোটিশ","New":"নতুন","Clear":"মুছুন","Filter":"ফিল্টার","Warning":"সতর্কতা","Error":"ত্রুটি","Success":"সফল","Loading":"লোড হচ্ছে","Upload":"আপলোড","Photo":"ছবি","Details":"বিস্তারিত","Summary":"সারাংশ","Top Sheet":"টপ শিট","Sheet":"শিট","Bank":"ব্যাংক","Cash":"নগদ","Account":"হিসাব","Account No":"হিসাব নং","Branch":"শাখা","Theme":"থিম","Appearance/Theme":"রূপ/থিম","Language":"ভাষা","Version":"ভার্সন","Changelog":"পরিবর্তন তালিকা","User Guide":"ব্যবহার নির্দেশিকা","Nominee":"নমিনি","Father":"পিতা","Mother":"মাতা","Blood Group":"রক্তের গ্রুপ","Religion":"ধর্ম","Present Address":"বর্তমান ঠিকানা","Permanent Address":"স্থায়ী ঠিকানা","Emergency Contact":"জরুরি যোগাযোগ","Resign":"পদত্যাগ","Resigned":"পদত্যাগকৃত","Terminated":"অব্যাহতিপ্রাপ্ত","Rejoin":"পুনরায় যোগদান","Transfer":"বদলি","Probation Period":"প্রবেশন কাল","Confirmed":"স্থায়ী","employee":"কর্মচারী","track":"ট্র্যাক","Deploy":"ডিপ্লয়","dialog":"ডায়ালগ","switch":"বদল","test":"টেস্ট","configure":"কনফিগার","event":"ইভেন্ট","seed":"নমুনা ডাটা","increment":"ইনক্রিমেন্ট","gross":"গ্রস","record":"রেকর্ড","Records":"রেকর্ড","sign":"সই","count":"সংখ্যা","breakdown":"বিভাজন","contribution":"অংশ","payroll":"পে-রোল","role":"রোল","message":"বার্তা","format":"ফরম্যাট","Card":"কার্ড","Fixed":"নির্দিষ্ট","Code":"কোড","In":"প্রবেশ","Out":"বের","English PDF":"ইংরেজি PDF","department cost":"বিভাগের খরচ","join/leave":"যোগদান/প্রস্থান","Web App":"ওয়েব অ্যাপ","Extensions":"এক্সটেনশন","revert":"আগের অবস্থায় ফেরা","tracked field":"ট্র্যাক করা ঘর","code paste":"কোড পেস্ট","normal Pull":"সাধারণ Pull","Treasury":"ট্রেজারি","House":"বাড়ি","Head of":"প্রধান"};
+    var keys=Object.keys(BD).sort(function(a,b){return b.length-a.length;});
+    keys.slice().forEach(function(k){ var u=k.toUpperCase(); if(u!==k&&!BD.hasOwnProperty(u)&&/[a-z]/.test(k)){ BD[u]=BD[k]; keys.push(u);} });
+    keys.sort(function(a,b){return b.length-a.length;});
+    var esc=function(x){return x.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');};
+    var RX=new RegExp('(?<![A-Za-z0-9])('+keys.map(esc).join('|')+')(?![A-Za-z0-9])','g');
+    var LAT=/[A-Za-z]{2,}/, bc={};
+    function trB(s){ if(!s||!LAT.test(s)) return s; if(bc.hasOwnProperty(s)) return bc[s]; var o=s.replace(RX,function(m){return BD[m]||m;}); bc[s]=o; return o; }
+    window.trBN=trB;
+    var BA=['placeholder','title','aria-label','alt'];
+    var SKP='#printArea,[data-notr],.notr,script,style,textarea,code,pre,.lang-btn,[contenteditable="true"],.ntc-body,.notice-body';
+    function bskip(el){ return !el||(el.closest&&el.closest(SKP))||false; }
+    function bnode(n){
+      if(n.nodeType===3){ var v=n.nodeValue; if(LAT.test(v)){ var pe=n.parentElement; if(pe&&!bskip(pe)){ if(pe.tagName==='OPTION'&&!pe.hasAttribute('value')) pe.setAttribute('value',pe.textContent); var t=trB(v); if(t!==v) n.nodeValue=t; } } return; }
+      if(n.nodeType!==1) return;
+      var tg=n.tagName; if(tg==='SCRIPT'||tg==='STYLE'||tg==='TEXTAREA'||n.id==='printArea'||bskip(n)) return;
+      for(var a=0;a<BA.length;a++){ var av=n.getAttribute(BA[a]); if(av&&LAT.test(av)){ var t2=trB(av); if(t2!==av) n.setAttribute(BA[a],t2); } }
+      if(tg==='INPUT'&&(n.type==='button'||n.type==='submit')&&LAT.test(n.value)) n.value=trB(n.value);
+      for(var c=n.firstChild;c;c=c.nextSibling) bnode(c);
+    }
+    var bbusy=false;
+    var bmo=new MutationObserver(function(ms){ if(bbusy) return; bbusy=true;
+      try{ for(var i=0;i<ms.length;i++){ var m=ms[i];
+        if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++) bnode(m.addedNodes[j]); }
+        else if(m.type==='characterData'){ bnode(m.target); }
+        else if(m.type==='attributes'){ if(bskip(m.target)) continue; var v=m.target.getAttribute(m.attributeName); if(v&&LAT.test(v)){ var tv=trB(v); if(tv!==v) m.target.setAttribute(m.attributeName,tv); } }
+      } } finally { bbusy=false; } });
+    var bstart=function(){ bnode(document.body); bmo.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:BA}); };
+    if(document.body) bstart(); else document.addEventListener('DOMContentLoaded',bstart);
+    ['alert','confirm','prompt'].forEach(function(f){ var o=window[f].bind(window); window[f]=function(m,d){ return o(trB(String(m==null?'':m)),d); }; });
+    return;
+  }
   document.documentElement.lang='en';
   var ATTR=['placeholder','title','aria-label','alt','data-l'];
   function skip(el){ return !el||(el.closest&&el.closest('#printArea,[data-notr],.notr,script,style,.lang-btn'))||false; }
